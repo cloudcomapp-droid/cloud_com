@@ -2,13 +2,19 @@ import { useState, useCallback } from "react";
 
 export function useInitialData() {
   const [campaigns, setCampaigns] = useState<string[]>([]);
-  const [selectedCampaign, setSelectedCampaign] = useState<string | undefined>();
+  const [selectedCampaign, setSelectedCampaign] = useState<
+    string | undefined
+  >();
   const [assetGroups, setAssetGroups] = useState<string[]>([]);
-  const [selectedAssetGroup, setSelectedAssetGroup] = useState<string | undefined>();
-
+  const [selectedAssetGroup, setSelectedAssetGroup] = useState<
+    string | undefined
+  >();
+  const API_URL = process.env.VITE_API_URL;
   const fetchInitialData = useCallback(async () => {
     // fetch campaigns
-    const resCampaigns = await fetch("http://localhost:5000/google-campaigns", { credentials: "include" });
+    const resCampaigns = await fetch(`${API_URL}/google-campaigns`, {
+      credentials: "include",
+    });
     const { data: campaignList } = await resCampaigns.json();
     setCampaigns(["All Campaigns", ...campaignList]);
     const firstCampaign = campaignList[0];
@@ -16,7 +22,10 @@ export function useInitialData() {
 
     // fetch asset groups for that campaign
     if (firstCampaign) {
-      const resGroups = await fetch(`http://localhost:5000/google-asset-groups?campaignId=${firstCampaign}`, { credentials: "include" });
+      const resGroups = await fetch(
+        `${API_URL}/google-asset-groups?campaignId=${firstCampaign}`,
+        { credentials: "include" }
+      );
       const { data: groupList } = await resGroups.json();
       setAssetGroups(["All Asset-Groups", ...groupList]);
       setSelectedAssetGroup(groupList[0]);
