@@ -22,12 +22,12 @@ export default function AppLayout() {
   const [assetGroups, setAssetGroups] = useState<string[]>([]);
   const [selectedAssetGroup, setSelectedAssetGroup] = useState<string | undefined>(undefined);
   const [selectedCustomLabel, setSelectedCustomLabel] = useState<string>("Alle Custom Labels");
-
+  const API_URL = import.meta.env.VITE_API_URL;
   // fetch campaigns + first campaign asset-groups
   const fetchInitialFilters = async (force = false) => {
     try {
       const respCamps = await fetch(
-        `http://localhost:5000/google-campaigns${force ? "?fetch=1" : ""}`,
+        `${API_URL}/google-campaigns${force ? "?fetch=1" : ""}`,
         { credentials: "include" }
       );
       const jsonCamps = await respCamps.json();
