@@ -1,0 +1,90 @@
+------------------------------------------------------------
+GOOGLE ADS API CONNECTION & TEST GUIDE
+------------------------------------------------------------
+
+1️⃣ CREATE PROJECT AND CREDENTIALS
+------------------------------------------------------------
+- Go to https://console.cloud.google.com/
+- Create or select a project.
+- Go to “APIs & Services” → “Credentials”.
+- Click “Create credentials” → “OAuth client ID”.
+- Application type: Web application.
+- Add redirect URI:
+    http://localhost:5000/auth/google/callback
+- Copy the generated CLIENT_ID and CLIENT_SECRET.
+- Enable the following APIs:
+    ✅ Google Ads API
+    ✅ OAuth 2.0 API
+
+
+------------------------------------------------------------
+2️⃣ GENERATE REFRESH TOKEN (FIRST TIME ONLY)
+------------------------------------------------------------
+- Open `zzz_con_GAds.js` and ensure:
+    - CLIENT_ID, CLIENT_SECRET, and REDIRECT_URI are set.
+- In your debug or terminal file (`zzzz_debug.js`), add:
+    import { genRefreshToken_gads } from './zzz_con_GAds.js';
+    genRefreshToken_gads();
+
+- Run:
+    node zzzz_debug.js
+
+- Copy the authorization URL shown in the terminal → open it in your browser.
+- Authorize the app and wait for the redirect to a URL like:
+    http://localhost:5000/auth/google/callback?code=4/0AB...
+
+- Copy either the full URL or just the `code` part and paste it back into the terminal.
+- Copy the printed refresh token (save it — you’ll reuse it in the script).
+
+
+------------------------------------------------------------
+3️⃣ CONNECT AND TEST GOOGLE ADS API
+------------------------------------------------------------
+- Open `zzz_con_GAds.js` and:
+    - Paste your refresh token into `REFRESH_TOKEN`.
+    - Confirm CLIENT_ID, CLIENT_SECRET, and REDIRECT_URI are correct.
+    - Add your DEVELOPER_TOKEN and LOGIN_CUSTOMER_ID inside the headers.
+
+- In `zzzz_debug.js`, import and run:
+    import { testGAdsConnection } from './zzz_con_GAds.js';
+    testGAdsConnection()
+      .then(data => console.log(JSON.stringify(data, null, 2)))
+      .catch(console.error);
+
+- Run:
+    node zzzz_debug.js
+
+- You should see the customer descriptive name returned in JSON format.
+
+
+------------------------------------------------------------
+4️⃣ (OPTIONAL) RUN UNDER VSCODE DEBUGGER
+------------------------------------------------------------
+- Create `.vscode/launch.json` with:
+    {
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "type": "node",
+          "request": "launch",
+          "name": "Run Google Ads Script",
+          "skipFiles": ["<node_internals>/**"],
+          "program": "${workspaceFolder}/web-app/server/zzzz_debug.js",
+          "console": "integratedTerminal"
+        }
+      ]
+    }
+
+- Press **F5** to run and attach automatically to Node.
+
+
+------------------------------------------------------------
+5️⃣ CHECKLIST SUMMARY
+------------------------------------------------------------
+✅ Google Cloud project created  
+✅ OAuth credentials created  
+✅ Redirect URI added  
+✅ Refresh token generated via `genRefreshToken_gads()`  
+✅ Refresh token pasted into `zzz_con_GAds.js`  
+✅ CLIENT_ID, CLIENT_SECRET, DEVELOPER_TOKEN, LOGIN_CUSTOMER_ID set  
+✅ `node zzzz_debug.js` runs and returns customer info response  
