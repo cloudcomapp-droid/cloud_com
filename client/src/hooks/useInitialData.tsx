@@ -9,7 +9,7 @@ export function useInitialData() {
   const [selectedAssetGroup, setSelectedAssetGroup] = useState<
     string | undefined
   >();
-  const API_URL = process.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL;
   const fetchInitialData = useCallback(async () => {
     // fetch campaigns
     const resCampaigns = await fetch(`${API_URL}/google-campaigns`, {
