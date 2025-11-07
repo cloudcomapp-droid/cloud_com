@@ -15,4 +15,4 @@ Deploy
 
 Producción: main → 
 
-Desarrollo: develop → 
+Desarrollo: Develop → 
