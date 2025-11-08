@@ -7,6 +7,11 @@ import session from "express-session"; // session middleware
 import pool from "./db.js"; // db connection
 import { getCampaigns } from "./data_fetching/campaigns.js"; // fetch campaigns from GAds
 
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // APP //
 const app = express();
 
@@ -14,7 +19,12 @@ const app = express();
 // app.use(cors());
 app.use(
   cors({
-    origin: ["http://localhost:8080", "https://cloud-com.vercel.app"], // frontend origin
+    origin: [
+      "http://localhost:8080",
+      "http://localhost:5000",
+      "http://localhost:8081",
+      "https://cloud-com-238473146041.us-central1.run.app"
+    ], // frontend origin
     credentials: true, // allow cookies / sessions
   })
 );
@@ -923,6 +933,10 @@ app.get("/google-campaigns", async (req, res) => {
 // // ############################################################
 
 // --------------------------------------------
-app.listen(5000, () => {
-  console.log("server running on http://localhost:5000");
+app.use(express.static(path.join(__dirname, "client-build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client-build", "index.html"));
 });
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

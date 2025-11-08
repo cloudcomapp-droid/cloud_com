@@ -16,7 +16,7 @@ const AllProducts = () => {
   const fetchInitialFilters = async (force = false) => {
     try {
       const resp_camps = await fetch(
-        `http://localhost:5000/google-campaigns${force ? "?fetch=1" : ""}`,
+        `http://localhost:8080/google-campaigns${force ? "?fetch=1" : ""}`,
         { credentials: "include" }
       );
       const { method, data: campaigns } = await resp_camps.json();

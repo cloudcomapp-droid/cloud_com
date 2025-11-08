@@ -1,0 +1,44 @@
+steps:
+  # Paso 1: instalar dependencias del frontend
+  - name: 'gcr.io/cloud-builders/npm'
+    dir: 'client'
+    args: ['install']
+
+  # Paso 2: construir el frontend
+  - name: 'gcr.io/cloud-builders/npm'
+    dir: 'client'
+    args: ['run', 'build']
+
+  # Paso 3: mover el build del frontend al backend
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args: ['-c', 'cp -r client/dist server/client-build']
+
+  # Paso 4: construir la imagen Docker del backend
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/serene-column-477520-u2/cloud-com', './server']
+
+  # Paso 5: subir la imagen al Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/serene-column-477520-u2/cloud-com']
+
+  # Paso 6: desplegar en Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run',
+        'deploy',
+        'cloud-com',
+        '--image',
+        'gcr.io/serene-column-477520-u2/cloud-com',
+        '--region',
+        'us-central1',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated'
+      ]
+
+
+images:
+  - 'gcr.io/serene-column-477520-u2/cloud-com'
