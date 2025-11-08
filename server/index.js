@@ -18,7 +18,7 @@ const app = express();
 // app.use(cors());
 app.use(
   cors({
-    origin: ["http://localhost:8080", "http://localhost:5000"], // frontend origin
+    origin: ["http://localhost:8080", "http://localhost:5000", "http://34.28.14.149:5000"], // frontend origin
     credentials: true, // allow cookies / sessions
   })
 );
