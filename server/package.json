@@ -17,6 +17,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "google-auth-library": "^10.4.0",
+    "path-to-regexp": "^6.3.0",
     "pg": "^8.16.3",
     "puppeteer": "^24.23.0"
   }
