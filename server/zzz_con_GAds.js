@@ -8,9 +8,9 @@
 import { OAuth2Client } from 'google-auth-library'; // Google OAuth2 client
 import fetch from 'node-fetch'; // For making HTTP requests
 import readline from 'readline'; // For reading input from console
+import dotenv from 'dotenv';
 // ============================================================
-
-
+dotenv.config();
 // ============================================================
 // General settings
 // ------------------------------------------------------------
