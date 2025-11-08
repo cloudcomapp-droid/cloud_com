@@ -6,7 +6,11 @@ import cors from "cors"; // cross-origin resource sharing
 import session from "express-session"; // session middleware
 import pool from "./db.js"; // db connection
 import { getCampaigns } from "./data_fetching/campaigns.js"; // fetch campaigns from GAds
+import { fileURLToPath } from 'url';
+import path from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // APP //
 const app = express();
 
@@ -18,6 +22,9 @@ app.use(
     credentials: true, // allow cookies / sessions
   })
 );
+// Servir frontend
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
 app.use(express.json());
 
 // simple session store (for dev)
@@ -921,6 +928,11 @@ app.get("/google-campaigns", async (req, res) => {
   return res.json({ method, data: respData || [] });
 });
 // // ############################################################
+
+// Para cualquier otra ruta, enviar index.html
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
+});
 
 // --------------------------------------------
 app.listen(5000, () => {
