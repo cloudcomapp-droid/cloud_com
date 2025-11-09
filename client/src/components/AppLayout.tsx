@@ -22,7 +22,7 @@ export default function AppLayout() {
   const [assetGroups, setAssetGroups] = useState<string[]>([]);
   const [selectedAssetGroup, setSelectedAssetGroup] = useState<string | undefined>(undefined);
   const [selectedCustomLabel, setSelectedCustomLabel] = useState<string>("Alle Custom Labels");
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "http://34.28.14.149:5000";
   // fetch campaigns + first campaign asset-groups
   const fetchInitialFilters = async (force = false) => {
     try {
