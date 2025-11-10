@@ -9,21 +9,16 @@ import { getCampaigns } from "./data_fetching/campaigns.js"; // fetch campaigns 
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// APP //
 const app = express();
 
 // MIDDLEWARE //
 // app.use(cors());
 app.use(
   cors({
-    origin: ["http://localhost:8080", "http://localhost:5000", "http://34.28.14.149:5000"], // frontend origin
+    origin: ["http://localhost:8080", "http://localhost:5000", "https://34.28.14.149:5000","https://34.9.42.12:5000"], // frontend origin
     credentials: true, // allow cookies / sessions
   })
 );
-// Servir frontend
-app.use(express.static(path.join(__dirname, '../client/dist')));
 
 app.use(express.json());
 
@@ -929,10 +924,8 @@ app.get("/google-campaigns", async (req, res) => {
 });
 // // ############################################################
 
-// Para cualquier otra ruta, enviar index.html
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../client/dist/index.html'));
-});
+
+
 
 // --------------------------------------------
 app.listen(5000, () => {
