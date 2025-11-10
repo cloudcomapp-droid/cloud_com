@@ -9,7 +9,7 @@ export function useInitialData() {
   const [selectedAssetGroup, setSelectedAssetGroup] = useState<
     string | undefined
   >();
-  const API_URL = "http://34.28.14.149:5000";
+  const API_URL = "/api";
   const fetchInitialData = useCallback(async () => {
     // fetch campaigns
     const resCampaigns = await fetch(`${API_URL}/google-campaigns`, {
