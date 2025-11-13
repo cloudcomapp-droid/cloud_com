@@ -8,8 +8,10 @@ import pool from "./db.js"; // db connection
 import { getCampaigns } from "./data_fetching/campaigns.js"; // fetch campaigns from GAds
 import { getCustomerName } from "./data_fetching/customerName.js"; // fetch customer name from GAds
 import { getAssetGroups } from "./data_fetching/asset_groups.js"; // fetch asset groups from GAds
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { getClientCustomLabels } from "./data_fetching/custom_labels.js"; // fetch custom labels from GAds
+import { getShoppingProducts } from "./data_fetching/get_all_products.js"; // fetch shopping products from GAds
+import { fileURLToPath } from "url";
+import path from "path";
 
 const app = express();
 
@@ -17,7 +19,12 @@ const app = express();
 // app.use(cors());
 app.use(
   cors({
-    origin: ["http://localhost:8080", "http://localhost:5000", "https://34.28.14.149:5000","https://34.9.42.12:5000"], // frontend origin
+    origin: [
+      "http://localhost:8080",
+      "http://localhost:5000",
+      "https://34.28.14.149:5000",
+      "https://34.9.42.12:5000",
+    ], // frontend origin
     credentials: true, // allow cookies / sessions
   })
 );
@@ -960,7 +967,6 @@ app.get("/google-customer-name", async (req, res) => {
     console.log(`Client Name: ${respData}`);
     console.log("===========================");
     return res.json({ method, data: respData });
-
   } catch (error) {
     console.error("Error fetching customer name:", error.message);
     console.log("===========================");
@@ -983,16 +989,20 @@ app.get("/google-asset-groups", async (req, res) => {
 
   try {
     if (!req.session.cache_assetGroups || forceFetch) {
-      console.log("fetching new asset groups...");
       method = "fetched";
-
       // Llama al servicio de Google Ads
-      const assetGroups = await getAssetGroups(clientId, campaignId, startDate, endDate);
+      const assetGroups = await getAssetGroups(
+        clientId,
+        campaignId,
+        startDate,
+        endDate
+      );
 
       // Aseguramos que devuelva tanto id como name
       respData = assetGroups.map((g) => ({
         id: g.id,
         name: g.name,
+        campaign: g.campaign,
       }));
 
       // Cacheamos la lista completa (id + name)
@@ -1003,8 +1013,6 @@ app.get("/google-asset-groups", async (req, res) => {
       respData = req.session.cache_assetGroups.slice();
     }
 
-    console.log(`Asset Groups count: ${respData.length}`);
-    console.log("===========================");
     return res.json({ method, data: respData });
   } catch (error) {
     console.error("Error fetching asset groups:", error.message);
@@ -1013,7 +1021,71 @@ app.get("/google-asset-groups", async (req, res) => {
   }
 });
 
+app.get("/google-custom-labels", async (req, res) => {
+  console.log("===========================");
+  console.log("hitting /google-custom-labels endpoint");
 
+  const clientId = req.query.clientId || "4693401961";
+  const forceFetch = req.query.fetch === "1";
+
+  let method;
+  let respData;
+
+  try {
+    if (!req.session.cache_customLabels || forceFetch) {
+      method = "fetched";
+      const labels = await getClientCustomLabels(clientId);
+      respData = labels;
+      req.session.cache_customLabels = respData.slice();
+    } else {
+      console.log("using cached custom labels...");
+      method = "cached";
+      respData = req.session.cache_customLabels.slice();
+    }
+
+    return res.json({ method, data: respData });
+  } catch (err) {
+    console.error("Error fetching custom labels:", err.message);
+    return res.status(500).json({ error: "Failed to fetch custom labels" });
+  }
+});
+
+app.get("/google-shopping-products", async (req, res) => {
+  console.log("===========================");
+  console.log("hitting /google-shopping-products endpoint");
+
+  const clientId = req.query.clientId || "4693401961";
+  const campaignId = req.query.campaignId || "17662012260";
+  const startDate = req.query.startDate || "2025-01-01";
+  const endDate = req.query.endDate || "2025-07-31";
+  const forceFetch = req.query.fetch === "1";
+
+  let method;
+  let respData;
+
+  try {
+    if (!req.session.cache_shoppingProducts || forceFetch) {
+      method = "fetched";
+      const products = await getShoppingProducts(
+        clientId,
+        campaignId,
+        startDate,
+        endDate
+      );
+      respData = products;
+      req.session.cache_shoppingProducts = respData.slice();
+    } else {
+      console.log("using cached shopping products...");
+      method = "cached";
+      respData = req.session.cache_shoppingProducts.slice();
+    }
+
+    return res.json({ method, data: respData });
+  } catch (error) {
+    console.error("Error fetching shopping products:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 // --------------------------------------------
 app.listen(process.env.PORT || 5000, () => {
