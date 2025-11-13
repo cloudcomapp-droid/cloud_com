@@ -1,4 +1,3 @@
-// src/components/Filters.tsx
 import { Target, Layers, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,13 +8,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface Campaign {
+  id: string;
+  name: string;
+}
+
+interface AssetGroup {
+  id: string;
+  name: string;
+}
+
 interface FiltersProps {
-  campaigns: string[];
-  selectedCampaign: string;
-  setSelectedCampaign: (value: string) => void;
-  assetGroups: string[];
-  selectedAssetGroup: string;
-  setSelectedAssetGroup: (value: string) => void;
+  campaigns: Campaign[];
+  selectedCampaign?: Campaign;
+  setSelectedCampaign: (value?: Campaign) => void;
+  assetGroups: AssetGroup[];
+  selectedAssetGroup?: AssetGroup;
+  setSelectedAssetGroup: (value?: AssetGroup) => void;
   selectedCustomLabel: string;
   setSelectedCustomLabel: (value: string) => void;
 }
@@ -39,14 +48,19 @@ export function Filters({
             <Target className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">Campaign</span>
           </div>
-          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
+          <Select
+            value={selectedCampaign?.id || ""}
+            onValueChange={(value) =>
+              setSelectedCampaign(campaigns.find((c) => c.id === value))
+            }
+          >
             <SelectTrigger className="w-48 h-9 text-sm bg-background border-border/50">
               <SelectValue placeholder="Select Campaign" />
             </SelectTrigger>
             <SelectContent className="bg-background border-border shadow-lg z-50">
               {campaigns?.map((campaign) => (
-                <SelectItem key={campaign} value={campaign} className="text-sm">
-                  {campaign}
+                <SelectItem key={campaign.id} value={campaign.id} className="text-sm">
+                  {campaign.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -60,16 +74,18 @@ export function Filters({
             <span className="font-medium">Asset Group</span>
           </div>
           <Select
-            value={selectedAssetGroup}
-            onValueChange={setSelectedAssetGroup}
+            value={selectedAssetGroup?.id || ""}
+            onValueChange={(value) =>
+              setSelectedAssetGroup(assetGroups.find((a) => a.id === value))
+            }
           >
             <SelectTrigger className="w-48 h-9 text-sm bg-background border-border/50">
               <SelectValue placeholder="Select Asset Group" />
             </SelectTrigger>
             <SelectContent className="bg-background border-border shadow-lg z-50">
               {assetGroups?.map((group) => (
-                <SelectItem key={group} value={group} className="text-sm">
-                  {group}
+                <SelectItem key={group.id} value={group.id} className="text-sm">
+                  {group.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -113,8 +129,8 @@ export function Filters({
             size="sm"
             className="h-9 text-xs"
             onClick={() => {
-              setSelectedCampaign("Alle Kampagnen");
-              setSelectedAssetGroup("Alle Asset-Gruppen");
+              setSelectedCampaign(undefined);
+              setSelectedAssetGroup(undefined);
               setSelectedCustomLabel("Alle Custom Labels");
             }}
           >

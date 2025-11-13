@@ -62,7 +62,7 @@ export async function getCampaigns(clientId) {
       });
     }
   }
-  // console.log(campaigns);
+   console.log(campaigns);
 
   return campaigns;
 }
