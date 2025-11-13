@@ -28,6 +28,7 @@ interface FiltersProps {
   selectedCustomLabel: string;
   setSelectedCustomLabel: (value: string) => void;
   customLabels: string[];
+  fetchProducts?: (b: boolean) => void;
 }
 
 export function Filters({
@@ -40,6 +41,7 @@ export function Filters({
   selectedCustomLabel,
   setSelectedCustomLabel,
   customLabels,
+  fetchProducts,
 }: FiltersProps) {
   return (
     <div className="w-full border-t border-border/50 bg-background/50 px-6 py-3">
@@ -62,7 +64,7 @@ export function Filters({
             <SelectContent className="bg-background border-border shadow-lg z-50">
               {campaigns?.map((campaign) => (
                 <SelectItem key={campaign.id} value={campaign.id} className="text-sm">
-                  {campaign.name}
+                  {String(campaign.name || "Unnamed")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -110,7 +112,7 @@ export function Filters({
             <SelectContent className="bg-background border-border shadow-lg z-50">
               {customLabels.map((label) => (
                 <SelectItem key={label} value={label} className="text-sm">
-                  {label}
+                  {String(label || "Unnamed")}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -131,7 +133,7 @@ export function Filters({
           >
             Reset
           </Button>
-          <Button size="sm" className="h-9 text-xs">
+          <Button size="sm" className="h-9 text-xs" onClick={() => fetchProducts && fetchProducts(true)}>
             Apply
           </Button>
         </div>
