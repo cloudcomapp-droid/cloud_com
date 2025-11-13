@@ -17,6 +17,7 @@ dotenv.config();
 // Amidn's (cloudWEB) Google API credentials
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const VERSION = "v21";
 const REDIRECT_URI = "http://localhost:5000/auth/google/callback";
 
 // OAuth2 client initialized with admin credentials
@@ -101,7 +102,7 @@ async function testGAdsConnection(clientId) {
     const accessToken = await getAccessToken();
 
     // define request settings
-    const url = `https://googleads.googleapis.com/v21/customers/${clientId}/googleAds:searchStream`;
+    const url = `https://googleads.googleapis.com/${VERSION}/customers/${clientId}/googleAds:searchStream`;
     const options = {
         method: "POST",
         headers: {
