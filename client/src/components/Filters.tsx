@@ -27,6 +27,7 @@ interface FiltersProps {
   setSelectedAssetGroup: (value?: AssetGroup) => void;
   selectedCustomLabel: string;
   setSelectedCustomLabel: (value: string) => void;
+  customLabels: string[];
 }
 
 export function Filters({
@@ -38,6 +39,7 @@ export function Filters({
   setSelectedAssetGroup,
   selectedCustomLabel,
   setSelectedCustomLabel,
+  customLabels,
 }: FiltersProps) {
   return (
     <div className="w-full border-t border-border/50 bg-background/50 px-6 py-3">
@@ -106,14 +108,7 @@ export function Filters({
               <SelectValue placeholder="Select Custom Label" />
             </SelectTrigger>
             <SelectContent className="bg-background border-border shadow-lg z-50">
-              {[
-                "Alle Custom Labels",
-                "High Value",
-                "Seasonal",
-                "New Product",
-                "Best Seller",
-                "Clearance",
-              ].map((label) => (
+              {customLabels.map((label) => (
                 <SelectItem key={label} value={label} className="text-sm">
                   {label}
                 </SelectItem>

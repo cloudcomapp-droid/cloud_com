@@ -31,6 +31,7 @@ export default function AppLayout() {
     setStartDate,
     setEndDate,
     clientName,
+    customLabels,
   } = useFilters();
 
   useEffect(() => {
@@ -127,6 +128,7 @@ export default function AppLayout() {
                 setSelectedAssetGroup={setSelectedAssetGroup}
                 selectedCustomLabel={selectedCustomLabel}
                 setSelectedCustomLabel={setSelectedCustomLabel}
+                customLabels={customLabels}
               />
             </div>
           </header>

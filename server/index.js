@@ -8,8 +8,9 @@ import pool from "./db.js"; // db connection
 import { getCampaigns } from "./data_fetching/campaigns.js"; // fetch campaigns from GAds
 import { getCustomerName } from "./data_fetching/customerName.js"; // fetch customer name from GAds
 import { getAssetGroups } from "./data_fetching/asset_groups.js"; // fetch asset groups from GAds
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { getClientCustomLabels } from "./data_fetching/custom_labels.js"; // fetch custom labels from GAds
+import { fileURLToPath } from "url";
+import path from "path";
 
 const app = express();
 
@@ -17,7 +18,12 @@ const app = express();
 // app.use(cors());
 app.use(
   cors({
-    origin: ["http://localhost:8080", "http://localhost:5000", "https://34.28.14.149:5000","https://34.9.42.12:5000"], // frontend origin
+    origin: [
+      "http://localhost:8080",
+      "http://localhost:5000",
+      "https://34.28.14.149:5000",
+      "https://34.9.42.12:5000",
+    ], // frontend origin
     credentials: true, // allow cookies / sessions
   })
 );
@@ -960,7 +966,6 @@ app.get("/google-customer-name", async (req, res) => {
     console.log(`Client Name: ${respData}`);
     console.log("===========================");
     return res.json({ method, data: respData });
-
   } catch (error) {
     console.error("Error fetching customer name:", error.message);
     console.log("===========================");
@@ -986,12 +991,19 @@ app.get("/google-asset-groups", async (req, res) => {
       console.log("fetching new asset groups...");
       method = "fetched";
       // Llama al servicio de Google Ads
-      const assetGroups = await getAssetGroups(clientId, campaignId, startDate, endDate);
+      const assetGroups = await getAssetGroups(
+        clientId,
+        campaignId,
+        startDate,
+        endDate
+      );
+      console.log("Raw asset groups fetched:", assetGroups);
 
       // Aseguramos que devuelva tanto id como name
       respData = assetGroups.map((g) => ({
         id: g.id,
         name: g.name,
+        campaign: g.campaign,
       }));
 
       // Cacheamos la lista completa (id + name)
@@ -1002,8 +1014,6 @@ app.get("/google-asset-groups", async (req, res) => {
       respData = req.session.cache_assetGroups.slice();
     }
 
-    console.log(`Asset Groups count: ${respData.length}`);
-    console.log("===========================");
     return res.json({ method, data: respData });
   } catch (error) {
     console.error("Error fetching asset groups:", error.message);
@@ -1012,7 +1022,16 @@ app.get("/google-asset-groups", async (req, res) => {
   }
 });
 
-
+app.get("/google-custom-labels", async (req, res) => {
+  try {
+    const { clientId } = req.query;
+    const labels = await getClientCustomLabels(clientId);
+    res.json({ data: labels });
+  } catch (err) {
+    console.error("Error fetching custom labels:", err);
+    res.status(500).json({ error: "Failed to fetch custom labels" });
+  }
+});
 
 // --------------------------------------------
 app.listen(process.env.PORT || 5000, () => {
