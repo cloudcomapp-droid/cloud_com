@@ -985,7 +985,6 @@ app.get("/google-asset-groups", async (req, res) => {
     if (!req.session.cache_assetGroups || forceFetch) {
       console.log("fetching new asset groups...");
       method = "fetched";
-
       // Llama al servicio de Google Ads
       const assetGroups = await getAssetGroups(clientId, campaignId, startDate, endDate);
 

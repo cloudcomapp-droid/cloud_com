@@ -65,6 +65,5 @@ export async function getAssetGroups(clientId = "1635968127", campaignId = "1766
     } catch {}
   }
 
-  console.log(assetGroups);
   return assetGroups;
 }

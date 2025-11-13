@@ -26,7 +26,6 @@ export function useFilters() {
   const [selectedCustomLabel, setSelectedCustomLabel] =
     useState("Alle Custom Labels");
 
-  // 🚀 Fetch all filters (client name, campaigns, asset groups)
   const fetchInitialFilters = useCallback(async (force = false) => {
     try {
       // --- 1️⃣ Fetch campaigns ---
@@ -40,7 +39,6 @@ export function useFilters() {
         ? jsonCamps.data
         : [];
 
-      // prepend "All campaigns" option
       const allCamps = [{ id: "all", name: "All Campaigns" }, ...campList];
       setCampaigns(allCamps);
 
@@ -54,30 +52,39 @@ export function useFilters() {
       const jsonClient = await respClient.json();
       setClientName(jsonClient?.data || "");
 
-      // --- 3️⃣ Fetch asset groups ---
-      if (firstCamp?.id) {
-        const respAssets = await fetch(
-          `${API_URL}/google-asset-groups?campaignId=${encodeURIComponent(
-            firstCamp.id
-          )}&startDate=${startDate}&endDate=${endDate}`,
-          { credentials: "include" }
-        );
+      // --- 3️⃣ Fetch all asset groups from ALL campaigns ---
+      if (campList.length > 0) {
+        const allGroups: AssetGroup[] = [];
 
-        const jsonAssets = await respAssets.json();
-        const groupList: AssetGroup[] = Array.isArray(jsonAssets?.data)
-          ? jsonAssets.data
-          : [];
+        for (const campaign of campList) {
+          const respAssets = await fetch(
+            `${API_URL}/google-asset-groups?campaignId=${encodeURIComponent(
+              campaign.id
+            )}&startDate=${startDate}&endDate=${endDate}&fetch=1`,
+            { credentials: "include" }
+          );
+          const jsonAssets = await respAssets.json();
+          const groups: AssetGroup[] = Array.isArray(jsonAssets?.data)
+            ? jsonAssets.data
+            : [];
 
-        const allGroups = [{ id: "all", name: "All Asset Groups" }, ...groupList];
-        setAssetGroups(allGroups);
-        setSelectedAssetGroup(groupList[0]);
+          // Agregamos evitando duplicados
+          for (const g of groups) {
+            if (!allGroups.some((x) => x.id === g.id)) {
+              allGroups.push(g);
+            }
+          }
+        }
+
+        const finalGroups = [{ id: "all", name: "All Asset Groups" }, ...allGroups];
+        setAssetGroups(finalGroups);
+        setSelectedAssetGroup(finalGroups[0]);
       }
     } catch (err) {
       console.error("Failed to fetch filters:", err);
     }
   }, [API_URL, startDate, endDate]);
 
-  // Fetch on mount
   useEffect(() => {
     fetchInitialFilters(false);
   }, [fetchInitialFilters]);
