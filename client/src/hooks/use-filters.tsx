@@ -27,7 +27,8 @@ interface Product {
 
 export function useFilters() {
   const API_URL = "/api";
-  const clientId = "4693401961";
+  const initialClientId = "4693401961";
+  const [clientId, setClientId] = useState(initialClientId);
 
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState("2025-01-01");
@@ -117,7 +118,7 @@ export function useFilters() {
           const respAssets = await fetch(
             `${API_URL}/google-asset-groups?campaignId=${encodeURIComponent(
               campaign.id
-            )}&startDate=${startDate}&endDate=${endDate}&clientId=${encodeURIComponent(
+            )}&clientId=${encodeURIComponent(
               clientId
             )}${force ? "&fetch=1" : ""}`,
             { credentials: "include" }
@@ -188,6 +189,24 @@ export function useFilters() {
     }
   }, [selectedCampaign, assetGroups]);
 
+  const searchClientById = useCallback(
+    async (id: string) => {
+      try {
+        const respClient = await fetch(
+          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(
+            id
+          )}`,
+          { credentials: "include" }
+        );
+        const jsonClient = await respClient.json();
+        setClientName(jsonClient?.data || "");
+      } catch (err) {
+        console.error("Failed to search client by ID:", err);
+      }
+    },
+    []
+  );
+
   // 🔹 Fetch inicial
   useEffect(() => {
     fetchInitialFilters(true);
@@ -216,5 +235,7 @@ export function useFilters() {
     setProducts,
     fetchProducts,
     fetchInitialFilters,
+    searchClientById,
+    clientId
   };
 }

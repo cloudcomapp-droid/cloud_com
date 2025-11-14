@@ -994,8 +994,6 @@ app.get("/google-asset-groups", async (req, res) => {
       const assetGroups = await getAssetGroups(
         clientId,
         campaignId,
-        startDate,
-        endDate
       );
 
       // Aseguramos que devuelva tanto id como name

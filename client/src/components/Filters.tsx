@@ -44,7 +44,7 @@ export function Filters({
   fetchProducts,
 }: FiltersProps) {
   return (
-    <div className="w-full border-t border-border/50 bg-background/50 px-6 py-3">
+    <div className="w-full border-t border-border/50 bg-background/50 px-0 py-2 flex justify-center">
       <div className="flex flex-wrap items-center justify-center gap-4">
         {/* Campaign */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
@@ -58,7 +58,7 @@ export function Filters({
               setSelectedCampaign(campaigns.find((c) => c.id === value))
             }
           >
-            <SelectTrigger className="w-48 h-9 text-sm bg-background border-border/50">
+            <SelectTrigger className="w-40 h-9 text-sm bg-background border-border/50">
               <SelectValue placeholder="Select Campaign" />
             </SelectTrigger>
             <SelectContent className="bg-background border-border shadow-lg z-50">
@@ -83,7 +83,7 @@ export function Filters({
               setSelectedAssetGroup(assetGroups.find((a) => a.id === value))
             }
           >
-            <SelectTrigger className="w-48 h-9 text-sm bg-background border-border/50">
+            <SelectTrigger className="w-40 h-9 text-sm bg-background border-border/50">
               <SelectValue placeholder="Select Asset Group" />
             </SelectTrigger>
             <SelectContent className="bg-background border-border shadow-lg z-50">
@@ -106,7 +106,7 @@ export function Filters({
             value={selectedCustomLabel}
             onValueChange={setSelectedCustomLabel}
           >
-            <SelectTrigger className="w-48 h-9 text-sm bg-background border-border/50">
+            <SelectTrigger className="w-36 h-9 text-sm bg-background border-border/50">
               <SelectValue placeholder="Select Custom Label" />
             </SelectTrigger>
             <SelectContent className="bg-background border-border shadow-lg z-50">
@@ -121,18 +121,6 @@ export function Filters({
 
         {/* Buttons */}
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 text-xs"
-            onClick={() => {
-              setSelectedCampaign(undefined);
-              setSelectedAssetGroup(undefined);
-              setSelectedCustomLabel("Alle Custom Labels");
-            }}
-          >
-            Reset
-          </Button>
           <Button size="sm" className="h-9 text-xs" onClick={() => fetchProducts && fetchProducts(true)}>
             Apply
           </Button>
