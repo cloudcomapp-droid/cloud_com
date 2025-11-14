@@ -91,7 +91,7 @@ export default function AppLayout() {
                   </button>
                 </div>
 
-                {/* 🔵 Current client name */}
+                {/* Current client name */}
                 <div className="flex items-center text-sm text-muted-foreground font-medium">
                   <span>{clientName || "—"}</span>
                 </div>
@@ -139,7 +139,7 @@ export default function AppLayout() {
             {/* ========================= */}
             {/* 🔵 SEGUNDA FILA - FILTERS */}
             {/* ========================= */}
-            <div className="px-8 py-3 bg-card border-b border-border">
+            <div className="px-0 py-2 bg-card border-b border-border">
               <Filters
                 campaigns={campaigns}
                 selectedCampaign={selectedCampaign}

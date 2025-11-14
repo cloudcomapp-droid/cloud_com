@@ -28,7 +28,7 @@ export async function getAssetGroups(
     FROM asset_group 
     WHERE 
       asset_group.status = 'ENABLED' 
-      AND asset_group.campaign = 'customers/${clientId}/campaigns/${campaignId}';
+      AND asset_group.campaign = 'customers/${clientId}/campaigns/${campaignId}'
   `;
 
   const options = {
