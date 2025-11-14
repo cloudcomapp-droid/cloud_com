@@ -10,7 +10,12 @@ const version = "21";
  * @param {string} [startDate] - optional start date (yyyy-MM-dd)
  * @param {string} [endDate] - optional end date (yyyy-MM-dd)
  */
-export async function getAssetGroups(clientId = "1635968127", campaignId = "17662012260", startDate, endDate) {
+export async function getAssetGroups(
+  clientId = "1635968127",
+  campaignId = "17662012260",
+  startDate,
+  endDate
+) {
   const accessToken = await getAccessToken();
 
   const url = `https://googleads.googleapis.com/v${version}/customers/${clientId}/googleAds:searchStream`;
@@ -23,8 +28,7 @@ export async function getAssetGroups(clientId = "1635968127", campaignId = "1766
     FROM asset_group 
     WHERE 
       asset_group.status = 'ENABLED' 
-      AND asset_group.campaign = 'customers/${clientId}/campaigns/${campaignId}'
-      ${startDate && endDate ? `AND segments.date BETWEEN '${startDate}' AND '${endDate}'` : ""}
+      AND asset_group.campaign = 'customers/${clientId}/campaigns/${campaignId}';
   `;
 
   const options = {
@@ -41,11 +45,13 @@ export async function getAssetGroups(clientId = "1635968127", campaignId = "1766
   const response = await fetch(url, options);
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Failed to fetch asset groups: ${response.status} ${response.statusText}\n${errText}`);
+    throw new Error(
+      `Failed to fetch asset groups: ${response.status} ${response.statusText}\n${errText}`
+    );
   }
 
   const responseData = await response.json();
-  const assetsVec = responseData.flatMap(chunk => chunk.results || []);
+  const assetsVec = responseData.flatMap((chunk) => chunk.results || []);
 
   const seen = new Set();
   const assetGroups = [];

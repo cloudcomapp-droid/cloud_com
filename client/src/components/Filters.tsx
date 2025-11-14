@@ -121,18 +121,6 @@ export function Filters({
 
         {/* Buttons */}
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 text-xs"
-            onClick={() => {
-              setSelectedCampaign(undefined);
-              setSelectedAssetGroup(undefined);
-              setSelectedCustomLabel("Alle Custom Labels");
-            }}
-          >
-            Reset
-          </Button>
           <Button size="sm" className="h-9 text-xs" onClick={() => fetchProducts && fetchProducts(true)}>
             Apply
           </Button>
