@@ -1,3 +1,4 @@
+import { mergeProducts } from "@/utils/mergeProducts";
 import { useState, useEffect, useCallback } from "react";
 
 interface Campaign {
@@ -28,11 +29,13 @@ interface Product {
 export function useFilters() {
   const API_URL = "/api";
   const initialClientId = "4693401961";
+  const initialCampaignId = "22556496600";
+  const initialAssetGroupId = "6576572641";
   const [clientId, setClientId] = useState(initialClientId);
 
   const [clientName, setClientName] = useState("");
   const [startDate, setStartDate] = useState("2025-01-01");
-  const [endDate, setEndDate] = useState("2025-07-31");
+  const [endDate, setEndDate] = useState("2025-10-31");
 
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<
@@ -52,16 +55,20 @@ export function useFilters() {
     useState("All Custom Labels");
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [productsAssetGroupIds, setProductsAssetGroupIds] = useState<string[]>(
+    []
+  );
+  const [productsByCustomLabel, setProductsByCustomLabel] = useState<any[]>([]);
 
   // 🔹 Fetch productos (manual o desde init)
-  const fetchProducts = useCallback(
-    async (force = false) => {
+  const fetchProductsCampaing = useCallback(
+    async (force = false, campaignId = initialCampaignId) => {
       try {
         const respProducts = await fetch(
           `${API_URL}/google-shopping-products?clientId=${encodeURIComponent(
             clientId
           )}&campaignId=${encodeURIComponent(
-            selectedCampaign?.id || "17662012260"
+            campaignId
           )}&startDate=${startDate}&endDate=${endDate}${
             force ? "&fetch=1" : ""
           }`,
@@ -74,6 +81,7 @@ export function useFilters() {
           : [];
         console.log("products:", productsList);
         setProducts(productsList);
+        return productsList;
       } catch (err) {
         console.error("Failed to fetch products:", err);
       }
@@ -81,47 +89,190 @@ export function useFilters() {
     [API_URL, clientId, selectedCampaign, startDate, endDate]
   );
 
+  // --- 2️⃣ Fetch products by asset group (NUEVO) ---
+  const fetchProductsAssetGroup = useCallback(
+    async (force = false, assetGroupId = initialAssetGroupId) => {
+      if (!assetGroupId || assetGroupId === "all") {
+        console.warn("No asset group selected or selected = ALL");
+        return;
+      }
+
+      try {
+        const resp = await fetch(
+          `${API_URL}/google-listing-group-products?clientId=${encodeURIComponent(
+            clientId
+          )}&assetGroupId=${encodeURIComponent(assetGroupId)}${
+            force ? "&fetch=1" : ""
+          }`,
+          { credentials: "include" }
+        );
+
+        const json = await resp.json();
+        const ids: string[] = Array.isArray(json?.data) ? json.data : [];
+
+        console.log("AssetGroup Product IDs:", ids);
+
+        setProductsAssetGroupIds(ids);
+        return ids;
+      } catch (err) {
+        console.error("❌ Failed to fetch asset group products:", err);
+      }
+    },
+    [API_URL, clientId, selectedAssetGroup]
+  );
+
+  const fetchProductsCustomLabels = useCallback(
+    async (
+      force = false,
+      campID: string = selectedCampaign?.id || initialCampaignId,
+      customLabel: string = selectedCustomLabel
+    ) => {
+      if (!campID || campID === "all") {
+        console.warn("❌ No valid campaign selected");
+        return;
+      }
+
+      if (!customLabel || customLabel === "All Custom Labels") {
+        console.warn("⚠ Custom label is ALL or empty");
+        return;
+      }
+
+      // ---- PARSE CUSTOM LABEL ----
+      // ejemplo: geräte***INDEX1
+      const [labelNameRaw, indexRaw] = customLabel.split("***");
+
+      if (!labelNameRaw || !indexRaw) {
+        console.error("❌ Invalid custom label format");
+        return;
+      }
+
+      const labelName = labelNameRaw.trim(); // "geräte"
+
+      // obtener número del index
+      // INDEX1 → 1
+      const indexNum = Number(indexRaw.replace("INDEX", "").trim());
+
+      if (isNaN(indexNum)) {
+        console.error("❌ Could not extract index number from custom label");
+        return;
+      }
+
+      try {
+        const url = `${API_URL}/google-products-campaign-labels?clientId=${encodeURIComponent(
+          clientId
+        )}&campID=${encodeURIComponent(
+          campID
+        )}&indexToFetch=${indexNum}&selCustLbl=${encodeURIComponent(
+          labelName
+        )}${force ? "&fetch=1" : ""}`;
+
+        const resp = await fetch(url, { credentials: "include" });
+        const json = await resp.json();
+
+        const data = json?.data?.matchedItems || [];
+
+        setProductsByCustomLabel(data);
+        return data;
+      } catch (err) {
+        console.error("❌ Failed to fetch custom label products:", err);
+      }
+    },
+    [API_URL, clientId, selectedCampaign, selectedCustomLabel]
+  );
+
+  const fetchClientName = useCallback(
+    async (id: string) => {
+      try {
+        const respClient = await fetch(
+          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(id)}`,
+          { credentials: "include" }
+        );
+        const jsonClient = await respClient.json();
+        setClientName(jsonClient?.data || "");
+      } catch (err) {
+        console.error("Failed to search client by ID:", err);
+      }
+    },
+    [API_URL]
+  );
+
+  const fetchCampaignsFromClient = useCallback(
+    async (id: string) => {
+      try {
+        const respCamps = await fetch(
+          `${API_URL}/google-campaigns?clientId=${encodeURIComponent(id)}`,
+          { credentials: "include" }
+        );
+        const jsonCamps = await respCamps.json();
+        const campList: Campaign[] = Array.isArray(jsonCamps?.data)
+          ? jsonCamps.data
+          : [];
+        const allCamps = [{ id: "all", name: "All Campaigns" }, ...campList];
+        setCampaigns(allCamps);
+        setSelectedCampaign(campList[0]);
+        return campList;
+      } catch (err) {
+        console.error("Failed to fetch campaigns:", err);
+      }
+    },
+    [API_URL]
+  );
+
+  const fetchAssetGroupsFromCampaign = useCallback(
+    async (campaignId: string, clientId: string, force = false) => {
+      try {
+        const respAssets = await fetch(
+          `${API_URL}/google-asset-groups?campaignId=${encodeURIComponent(
+            campaignId
+          )}&clientId=${encodeURIComponent(clientId)}${
+            force ? "&fetch=1" : ""
+          }`,
+          { credentials: "include" }
+        );
+        return respAssets;
+      } catch (err) {
+        console.error("Failed to fetch asset groups:", err);
+      }
+    },
+    [API_URL]
+  );
+
+  const fetchCustomLabels = useCallback(
+    async (clientId: string, force = false) => {
+      try {
+        const respLabels = await fetch(
+          `${API_URL}/google-custom-labels?clientId=${encodeURIComponent(
+            clientId
+          )}${force ? "&fetch=1" : ""}`,
+          { credentials: "include" }
+        );
+        return respLabels;
+      } catch (err) {
+        console.error("Failed to fetch custom labels:", err);
+      }
+    },
+    [API_URL]
+  );
+
   // 🔹 Fetch inicial (campañas, cliente, asset groups, labels, productos)
   const fetchInitialFilters = useCallback(async (force = false) => {
     try {
       // --- 1️⃣ Fetch campaigns ---
-      const respCamps = await fetch(
-        `${API_URL}/google-campaigns?clientId=${encodeURIComponent(clientId)}${
-          force ? "&fetch=1" : ""
-        }`,
-        { credentials: "include" }
-      );
-      const jsonCamps = await respCamps.json();
-      const campList: Campaign[] = Array.isArray(jsonCamps?.data)
-        ? jsonCamps.data
-        : [];
-
-      const allCamps = [{ id: "all", name: "All Campaigns" }, ...campList];
-      setCampaigns(allCamps);
-      setSelectedCampaign(campList[0]);
+      const campList = await fetchCampaignsFromClient(clientId);
+      setSelectedCampaign(campList?.find((c) => c.id === initialCampaignId));
 
       // --- 2️⃣ Fetch client name ---
-      const respClient = await fetch(
-        `${API_URL}/google-customer-name?clientId=${encodeURIComponent(
-          clientId
-        )}&${force ? "fetch=1" : ""}`,
-        { credentials: "include" }
-      );
-      const jsonClient = await respClient.json();
-      setClientName(jsonClient?.data || "");
+      await fetchClientName(clientId);
 
       // --- 3️⃣ Fetch all asset groups ---
       if (campList.length > 0) {
         const allGroups: AssetGroup[] = [];
 
         for (const campaign of campList) {
-          const respAssets = await fetch(
-            `${API_URL}/google-asset-groups?campaignId=${encodeURIComponent(
-              campaign.id
-            )}&clientId=${encodeURIComponent(
-              clientId
-            )}${force ? "&fetch=1" : ""}`,
-            { credentials: "include" }
+          const respAssets = await fetchAssetGroupsFromCampaign(
+            campaign.id,
+            clientId,
+            force
           );
 
           const jsonAssets = await respAssets.json();
@@ -145,16 +296,13 @@ export function useFilters() {
           ...filtered,
         ];
         setFilteredAssetGroups(finalGroups);
-        setSelectedAssetGroup(finalGroups[0]);
+        setSelectedAssetGroup(
+          finalGroups.find((g) => g.id === initialAssetGroupId)
+        );
       }
 
       // --- 4️⃣ Fetch Custom Labels ---
-      const respLabels = await fetch(
-        `${API_URL}/google-custom-labels?clientId=${encodeURIComponent(
-          clientId
-        )}${force ? "&fetch=1" : ""}`,
-        { credentials: "include" }
-      );
+      const respLabels = await fetchCustomLabels(clientId, force);
       const jsonLabels = await respLabels.json();
       const labels: string[] = Array.isArray(jsonLabels?.data)
         ? jsonLabels.data
@@ -162,10 +310,45 @@ export function useFilters() {
 
       const allLabels = ["All Custom Labels", ...labels];
       setCustomLabels(allLabels);
-      setSelectedCustomLabel(allLabels[0]);
+      setSelectedCustomLabel(allLabels[1]);
 
-      // --- 5️⃣ Fetch Products ---
-      //await fetchProducts(force);
+      // --- 5️⃣ Fetch Products  ---
+
+      // 5.1 Fetch all products for the initial campaign
+      const productsCampaing = await fetchProductsCampaing(
+        force,
+        initialCampaignId
+      );
+
+      //5.2 Fetch products by asset group
+      const productsAssetGroup = await fetchProductsAssetGroup(
+        force,
+        initialAssetGroupId
+      );
+
+      // 5.3 Fetch products by custom label
+      const productsByLabel = await fetchProductsCustomLabels(
+        force,
+        initialCampaignId,
+        allLabels[1]
+      );
+
+      // 6️⃣ Order products
+
+      /*       console.log("Initial fetched products:", {
+        productsCampaing,
+        productsAssetGroup,
+        productsByLabel,
+      }); */
+
+      const productsMerged = mergeProducts(
+        productsCampaing || [],
+        productsAssetGroup || [],
+        productsByLabel || []
+      );
+
+      setProducts(productsMerged);
+      console.log("Merged products:", productsMerged);
     } catch (err) {
       console.error("Failed to fetch filters:", err);
     }
@@ -185,27 +368,24 @@ export function useFilters() {
         ...filtered,
       ];
       setFilteredAssetGroups(finalGroups);
-      setSelectedAssetGroup(finalGroups[0]);
+      setSelectedAssetGroup(
+        finalGroups.find((g) => g.id === initialAssetGroupId) ?? finalGroups[0]
+      );
     }
   }, [selectedCampaign, assetGroups]);
 
-  const searchClientById = useCallback(
-    async (id: string) => {
-      try {
-        const respClient = await fetch(
-          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(
-            id
-          )}`,
-          { credentials: "include" }
-        );
-        const jsonClient = await respClient.json();
-        setClientName(jsonClient?.data || "");
-      } catch (err) {
-        console.error("Failed to search client by ID:", err);
-      }
-    },
-    []
-  );
+  const searchClientById = useCallback(async (id: string) => {
+    try {
+      const respClient = await fetch(
+        `${API_URL}/google-customer-name?clientId=${encodeURIComponent(id)}`,
+        { credentials: "include" }
+      );
+      const jsonClient = await respClient.json();
+      setClientName(jsonClient?.data || "");
+    } catch (err) {
+      console.error("Failed to search client by ID:", err);
+    }
+  }, []);
 
   // 🔹 Fetch inicial
   useEffect(() => {
@@ -233,9 +413,8 @@ export function useFilters() {
 
     products,
     setProducts,
-    fetchProducts,
     fetchInitialFilters,
     searchClientById,
-    clientId
+    clientId,
   };
 }

@@ -1,4 +1,4 @@
-import { Target, Layers, Tag } from "lucide-react";
+import { Target, Layers, Tag, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { HeaderDateRange } from "./HeaderDateRange";
 
 interface Campaign {
   id: string;
@@ -29,6 +30,10 @@ interface FiltersProps {
   setSelectedCustomLabel: (value: string) => void;
   customLabels: string[];
   fetchProducts?: (b: boolean) => void;
+  startDate: string;
+  endDate: string;
+  setStartDate: (date: string) => void;
+  setEndDate: (date: string) => void;
 }
 
 export function Filters({
@@ -42,89 +47,109 @@ export function Filters({
   setSelectedCustomLabel,
   customLabels,
   fetchProducts,
+  startDate,
+  endDate,
+  setStartDate,
+  setEndDate,
 }: FiltersProps) {
   return (
-    <div className="w-full border-t border-border/50 bg-background/50 px-0 py-2 flex justify-center">
-      <div className="flex flex-wrap items-center justify-center gap-4">
-        {/* Campaign */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="flex items-center gap-1 text-sm text-foreground">
-            <Target className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Campaign</span>
-          </div>
-          <Select
-            value={selectedCampaign?.id || ""}
-            onValueChange={(value) =>
-              setSelectedCampaign(campaigns.find((c) => c.id === value))
-            }
-          >
-            <SelectTrigger className="w-40 h-9 text-sm bg-background border-border/50">
-              <SelectValue placeholder="Select Campaign" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border-border shadow-lg z-50">
-              {campaigns?.map((campaign) => (
-                <SelectItem key={campaign.id} value={campaign.id} className="text-sm">
-                  {String(campaign.name || "Unnamed")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="flex items-center gap-4 px-6 py-3 border-t border-border bg-background">
+      {/* Campaign */}
+      <div className="flex items-center gap-2 flex-1 min-w-[220px]">
+        <Target className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
+          Campaign
+        </span>
 
-        {/* Asset Group */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="flex items-center gap-1 text-sm text-foreground">
-            <Layers className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Asset Group</span>
-          </div>
-          <Select
-            value={selectedAssetGroup?.id || ""}
-            onValueChange={(value) =>
-              setSelectedAssetGroup(assetGroups.find((a) => a.id === value))
-            }
-          >
-            <SelectTrigger className="w-40 h-9 text-sm bg-background border-border/50">
-              <SelectValue placeholder="Select Asset Group" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border-border shadow-lg z-50">
-              {assetGroups?.map((group) => (
-                <SelectItem key={group.id} value={group.id} className="text-sm">
-                  {group.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <Select
+          value={selectedCampaign?.id || ""}
+          onValueChange={(value) =>
+            setSelectedCampaign(campaigns.find((c) => c.id === value))
+          }
+        >
+          <SelectTrigger className="flex-1 min-w-0 h-9 text-sm bg-background">
+            <SelectValue placeholder="Select campaign" />
+          </SelectTrigger>
 
-        {/* Custom Label */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="flex items-center gap-1 text-sm text-foreground">
-            <Tag className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Custom Label</span>
-          </div>
-          <Select
-            value={selectedCustomLabel}
-            onValueChange={setSelectedCustomLabel}
-          >
-            <SelectTrigger className="w-36 h-9 text-sm bg-background border-border/50">
-              <SelectValue placeholder="Select Custom Label" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border-border shadow-lg z-50">
-              {customLabels.map((label) => (
-                <SelectItem key={label} value={label} className="text-sm">
-                  {String(label || "Unnamed")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          <SelectContent>
+            {campaigns?.map((c) => (
+              <SelectItem key={c.id} value={c.id} className="text-sm">
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Buttons */}
-        <div className="flex gap-2">
-          <Button size="sm" className="h-9 text-xs" onClick={() => fetchProducts && fetchProducts(true)}>
-            Apply
-          </Button>
-        </div>
+      {/* Asset Group */}
+      <div className="flex items-center gap-2 flex-1 min-w-[220px]">
+        <Layers className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
+          Asset Group
+        </span>
+
+        <Select
+          value={selectedAssetGroup?.id || ""}
+          onValueChange={(value) =>
+            setSelectedAssetGroup(assetGroups.find((a) => a.id === value))
+          }
+        >
+          <SelectTrigger className="flex-1 min-w-0 h-9 text-sm bg-background">
+            <SelectValue placeholder="Select asset group" />
+          </SelectTrigger>
+
+          <SelectContent>
+            {assetGroups?.map((g) => (
+              <SelectItem key={g.id} value={g.id} className="text-sm">
+                {g.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Custom Label */}
+      <div className="flex items-center gap-2 flex-1 min-w-[220px]">
+        <Tag className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-foreground whitespace-nowrap">
+          Custom Label
+        </span>
+
+        <Select
+          value={selectedCustomLabel}
+          onValueChange={setSelectedCustomLabel}
+        >
+          <SelectTrigger className="flex-1 min-w-0 h-9 text-sm bg-background">
+            <SelectValue placeholder="Select label" />
+          </SelectTrigger>
+
+          <SelectContent>
+            {customLabels.map((label) => (
+              <SelectItem key={label} value={label} className="text-sm">
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Date + Apply */}
+      <div className="flex items-center gap-4">
+        <HeaderDateRange
+          variant="dropdown"
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+        />
+
+        <Button
+          size="sm"
+          className="whitespace-nowrap"
+          onClick={() => fetchProducts?.(true)}
+        >
+          Apply
+        </Button>
       </div>
     </div>
   );
