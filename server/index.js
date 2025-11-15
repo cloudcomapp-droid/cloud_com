@@ -9,7 +9,9 @@ import { getCampaigns } from "./data_fetching/campaigns.js"; // fetch campaigns 
 import { getCustomerName } from "./data_fetching/customerName.js"; // fetch customer name from GAds
 import { getAssetGroups } from "./data_fetching/asset_groups.js"; // fetch asset groups from GAds
 import { getClientCustomLabels } from "./data_fetching/custom_labels.js"; // fetch custom labels from GAds
-import { getShoppingProducts } from "./data_fetching/get_all_products.js"; // fetch shopping products from GAds
+import { getShoppingProducts } from "./data_fetching/get_all_products_campaign.js"; // fetch shopping products from GAds
+import { getListingGroupProductIds } from "./data_fetching/get_products_asset_group.js"; // fetch product IDs from asset group
+import { getProductsCampaignLabels } from "./data_fetching/get_products_label_campaign.js"; // fetch products by custom label
 import { fileURLToPath } from "url";
 import path from "path";
 
@@ -1084,6 +1086,103 @@ app.get("/google-shopping-products", async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+app.get("/google-listing-group-products", async (req, res) => {
+  console.log("===========================");
+  console.log("hitting /google-listing-group-products endpoint");
+
+  const clientId = req.query.clientId || "4693401961";
+  const assetGroupId = req.query.assetGroupId;
+  const forceFetch = req.query.fetch === "1";
+
+  if (!assetGroupId) {
+    return res.status(400).json({ error: "assetGroupId is required" });
+  }
+
+  let method;
+  let respData;
+
+  try {
+    if (!req.session.cache_listingGroupProducts || forceFetch) {
+      method = "fetched";
+
+      const productIds = await getListingGroupProductIds(
+        clientId,
+        assetGroupId
+      );
+
+      respData = productIds;
+      req.session.cache_listingGroupProducts = respData.slice();
+    } else {
+      console.log("using cached listing group products...");
+      method = "cached";
+      respData = req.session.cache_listingGroupProducts.slice();
+    }
+
+    return res.json({ method, data: respData });
+  } catch (error) {
+    console.error("Error fetching listing group products:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/google-products-campaign-labels", async (req, res) => {
+  console.log("===========================");
+  console.log("hitting /google-products-campaign-labels endpoint");
+
+  const clientId = req.query.clientId || "4693401961";
+  const campID = req.query.campID;
+  const indexToFetch = req.query.indexToFetch;
+  const selCustLbl = req.query.selCustLbl;
+  const forceFetch = req.query.fetch === "1";
+
+  // Validate required params
+  if (!campID) {
+    return res.status(400).json({ error: "campID is required" });
+  }
+  if (indexToFetch === undefined) {
+    return res.status(400).json({ error: "indexToFetch is required" });
+  }
+  if (!selCustLbl) {
+    return res.status(400).json({ error: "selCustLbl is required" });
+  }
+
+  let method;
+  let respData;
+
+  try {
+    if (!req.session.cache_productsCampaignLabels || forceFetch) {
+      method = "fetched";
+
+      const data = await getProductsCampaignLabels(
+        clientId,
+        campID,
+        Number(indexToFetch),
+        selCustLbl
+      );
+
+      respData = data;
+      req.session.cache_productsCampaignLabels = JSON.parse(
+        JSON.stringify(respData)
+      );
+    } else {
+      console.log("using cached products-campaign-labels...");
+      method = "cached";
+      respData = JSON.parse(
+        JSON.stringify(req.session.cache_productsCampaignLabels)
+      );
+    }
+
+    return res.json({ method, data: respData });
+  } catch (error) {
+    console.error(
+      "Error fetching products-campaign-labels:",
+      error.message
+    );
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 
 // --------------------------------------------
 app.listen(process.env.PORT || 5000, () => {

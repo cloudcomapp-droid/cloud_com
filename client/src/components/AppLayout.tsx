@@ -11,11 +11,14 @@ import { useNavigationState } from "@/hooks/useNavigationState";
 import { useState, useEffect } from "react";
 import { Filters } from "./Filters";
 import { useFilters } from "@/hooks/use-filters";
+import { Button } from "@/components/ui/button";
+import Products from "@/pages/Products";
 
 export default function AppLayout() {
   const [commandOpen, setCommandOpen] = useState(false);
   const { isFavorite, addToFavorites, removeFromFavorites, currentPath } =
     useNavigationState();
+
   const {
     campaigns,
     selectedCampaign,
@@ -32,9 +35,9 @@ export default function AppLayout() {
     setEndDate,
     clientName,
     customLabels,
-    fetchProducts,
     searchClientById,
     clientId,
+    products,
   } = useFilters();
 
   const [clientInput, setClientInput] = useState(clientId);
@@ -58,67 +61,62 @@ export default function AppLayout() {
         <AppSidebar />
 
         <div className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/95">
-            {/* ========================= */}
-            {/* 🔵 PRIMERA FILA - HEADER */}
-            {/* ========================= */}
-            <div className="flex items-center justify-between px-8 py-3 border-b border-border">
-              {/* LEFT SECTION: Breadcrumb + Client name */}
+          <header className="sticky top-0 z-50 border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/95">
+            {/* 🔵 PRIMERA FILA */}
+            <div className="flex items-center justify-between px-6 py-3 border-border">
               <div className="flex items-center gap-6">
                 <BreadcrumbNav />
 
-                {/* 🔵 Client search input */}
-                <div className="flex items-center gap-2">
-                                    <span className="mr-2 text-foreground font-semibold">
+                {/* 🔵 Client search */}
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-foreground text-base">
                     Client:
                   </span>
+
                   <Input
                     placeholder="Client ID"
                     value={clientInput}
                     onChange={(e) => setClientInput(e.target.value)}
-                    className="h-6 w-20"
+                    className="h-9 w-28"
                   />
 
-                  <button
-                    onClick={() => {
-                      //fetchInitialFilters(true);
-                      //searchClientById(clientInput);
-                    }}
-                    className="flex items-center gap-2 px-6 h-8 rounded-xl border bg-background hover:bg-muted"
+                  <Button
+                    size="sm"
+                    className="whitespace-nowrap"
+                    onClick={() => {}}
                   >
-                    <Search className="h-4 w-4" />
-                    Search
-                  </button>
+                    Apply
+                  </Button>
                 </div>
 
-                {/* Current client name */}
-                <div className="flex items-center text-sm text-muted-foreground font-medium">
-                  <span>{clientName || "—"}</span>
+                {/* Client name */}
+                <div className="ml-2 font-medium text-primary flex items-center">
+                  {clientName || "—"}
                 </div>
               </div>
 
-              {/* CENTER: Search bar */}
+              {/* 🔵 Search bar */}
               <div className="flex-1 max-w-xl mx-auto">
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     placeholder="Search for Products, Campaigns..."
-                    className="w-full pl-12 pr-4 h-11 bg-background/60 border rounded-xl"
+                    className="w-full pl-12 pr-4 h-11 bg-background/60 rounded-xl"
                     onFocus={() => setCommandOpen(true)}
                     readOnly
                   />
                 </div>
               </div>
 
-              {/* RIGHT SECTION: Date + Icons + Avatar */}
+              {/* 🔵 Icons + Avatar */}
               <div className="flex items-center gap-4">
-                <HeaderDateRange
+{/*                 <HeaderDateRange
                   variant="dropdown"
                   startDate={startDate}
                   endDate={endDate}
                   setStartDate={setStartDate}
                   setEndDate={setEndDate}
-                />
+                /> */}
 
                 <button className="h-11 w-11 grid place-items-center rounded-xl bg-background/50 hover:bg-muted border border-border">
                   <Globe className="h-5 w-5 text-muted-foreground" />
@@ -136,9 +134,7 @@ export default function AppLayout() {
               </div>
             </div>
 
-            {/* ========================= */}
-            {/* 🔵 SEGUNDA FILA - FILTERS */}
-            {/* ========================= */}
+            {/* 🔵 SEGUNDA FILA */}
             <div className="px-0 py-2 bg-card border-b border-border">
               <Filters
                 campaigns={campaigns}
@@ -150,14 +146,15 @@ export default function AppLayout() {
                 selectedCustomLabel={selectedCustomLabel}
                 setSelectedCustomLabel={setSelectedCustomLabel}
                 customLabels={customLabels}
-                fetchProducts={fetchProducts}
+                startDate={startDate}
+                endDate={endDate}
+                setStartDate={setStartDate}
+                setEndDate={setEndDate}
               />
             </div>
           </header>
 
-          {/* ========================= */}
-          {/* 🔵 PAGE CONTENT */}
-          {/* ========================= */}
+          {/* CONTENT */}
           <main className="flex-1">
             <Outlet
               context={{
@@ -170,6 +167,7 @@ export default function AppLayout() {
                 selectedCustomLabel,
                 setSelectedCustomLabel,
                 fetchInitialFilters,
+                products
               }}
             />
           </main>
