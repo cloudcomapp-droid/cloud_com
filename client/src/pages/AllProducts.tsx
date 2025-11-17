@@ -66,10 +66,10 @@ const AllProducts = () => {
           <table className="min-w-full border border-border text-sm text-left text-foreground mt-4 table-auto">
             <thead className="bg-muted/20">
               <tr>
-                <th className="border-b px-4 py-3">Camp ID</th>
-                <th className="border-b px-4 py-3">Camp Name</th>
-                <th className="border-b px-2 py-1 max-w-[150px]">Prod ID</th>
-                <th className="border-b px-2 py-3">Prod Name</th>
+                <th className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">Camp ID</th>
+                <th className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">Camp Name</th>
+                <th className="border-b px-1 py-1 max-w-[150px] min-w-[100px]">Prod ID</th>
+                <th className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">Prod Name</th>
                 <th className="border-b px-4 py-3 text-right">Impress</th>
                 <th className="border-b px-4 py-3 text-right">Clicks</th>
                 <th className="border-b px-4 py-3 text-right">CTR</th>
@@ -87,10 +87,10 @@ const AllProducts = () => {
                     i % 2 === 0 ? "bg-muted/10" : "bg-background"
                   } hover:bg-muted/30 transition-colors`}
                 >
-                  <td className="border-b px-4 py-2">{row.camp_id}</td>
-                  <td className="border-b px-4 py-2">{row.camp_name}</td>
-                  <td className="border-b px-2 py-1 max-w-[150px] whitespace-normal break-words">{row.prod_id}</td>
-                  <td className="border-b px-2 py-2">{row.prod_name}</td>
+                  <td className="border-b px-1 py-2 max-w-[150px] min-w-[100px]">{row.camp_id}</td>
+                  <td className="border-b px-1 py-2 max-w-[150px] min-w-[100px]">{row.camp_name}</td>
+                  <td className="border-b px-1 py-1 max-w-[150px] min-w-[100px] whitespace-normal break-words">{row.prod_id}</td>
+                  <td className="border-b px-1 py-2 max-w-[150px] min-w-[100px]">{row.prod_name}</td>
 
                   <td className="border-b px-4 py-2 text-right">
                     {row.prod_imprs}
