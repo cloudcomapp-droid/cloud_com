@@ -95,8 +95,17 @@ export default function AppLayout() {
                 </div>
               </div>
 
-              {/* 🔵 Search bar */}
-              <div className="flex-1 max-w-52 mx-auto ml-auto">
+              {/* 🔵 Icons + Avatar */}
+              <div className="flex items-center gap-4">
+                {/*                 <HeaderDateRange
+                  variant="dropdown"
+                  startDate={startDate}
+                  endDate={endDate}
+                  setStartDate={setStartDate}
+                  setEndDate={setEndDate}
+                /> */}
+
+                {/* Search bar */}
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
@@ -106,17 +115,6 @@ export default function AppLayout() {
                     readOnly
                   />
                 </div>
-              </div>
-
-              {/* 🔵 Icons + Avatar */}
-              <div className="flex items-center gap-4">
-{/*                 <HeaderDateRange
-                  variant="dropdown"
-                  startDate={startDate}
-                  endDate={endDate}
-                  setStartDate={setStartDate}
-                  setEndDate={setEndDate}
-                /> */}
 
                 <button className="h-11 w-11 grid place-items-center rounded-xl bg-background/50 hover:bg-muted border border-border">
                   <Globe className="h-5 w-5 text-muted-foreground" />
@@ -167,7 +165,7 @@ export default function AppLayout() {
                 selectedCustomLabel,
                 setSelectedCustomLabel,
                 fetchInitialFilters,
-                products
+                products,
               }}
             />
           </main>
