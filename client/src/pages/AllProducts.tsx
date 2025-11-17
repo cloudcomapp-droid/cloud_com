@@ -37,7 +37,7 @@ const AllProducts = () => {
     document.title = "All Products – Google Ads Product Commander";
 
     // Ya no usás tu fetch local sino el del contexto
-   // fetchInitialFilters(false);
+    // fetchInitialFilters(false);
 
     // Si querés inicializar tabla:
     setTableData(products);
@@ -63,13 +63,13 @@ const AllProducts = () => {
 
         {/* table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full border border-border text-sm text-left text-foreground mt-4">
+          <table className="min-w-full border border-border text-sm text-left text-foreground mt-4 table-auto">
             <thead className="bg-muted/20">
               <tr>
                 <th className="border-b px-4 py-3">Camp ID</th>
                 <th className="border-b px-4 py-3">Camp Name</th>
-                <th className="border-b px-4 py-3">Prod ID</th>
-                <th className="border-b px-4 py-3">Prod Name</th>
+                <th className="border-b px-2 py-1 max-w-[150px]">Prod ID</th>
+                <th className="border-b px-2 py-3">Prod Name</th>
                 <th className="border-b px-4 py-3 text-right">Impress</th>
                 <th className="border-b px-4 py-3 text-right">Clicks</th>
                 <th className="border-b px-4 py-3 text-right">CTR</th>
@@ -89,14 +89,37 @@ const AllProducts = () => {
                 >
                   <td className="border-b px-4 py-2">{row.camp_id}</td>
                   <td className="border-b px-4 py-2">{row.camp_name}</td>
-                  <td className="border-b px-4 py-2">{row.prod_id}</td>
-                  <td className="border-b px-4 py-2">{row.prod_name}</td>
-                  <td className="border-b px-4 py-2 text-right">{row.prod_imprs}</td>
-                  <td className="border-b px-4 py-2 text-right">{row.prod_clcks}</td>
-                  <td className="border-b px-4 py-2 text-right">{row.prod_ctr}</td>
-                  <td className="border-b px-4 py-2 text-right">{row.prod_convs}</td>
-                  <td className="border-b px-4 py-2 text-right">{row.prod_value}</td>
-                  <td className="border-b px-4 py-2 text-right">{row.prod_costs}</td>
+                  <td className="border-b px-2 py-1 max-w-[150px] whitespace-normal break-words">{row.prod_id}</td>
+                  <td className="border-b px-2 py-2">{row.prod_name}</td>
+
+                  <td className="border-b px-4 py-2 text-right">
+                    {row.prod_imprs}
+                  </td>
+
+                  <td className="border-b px-4 py-2 text-right">
+                    {row.prod_clcks}
+                  </td>
+
+                  <td className="border-b px-4 py-2 text-right">
+                    {row.prod_ctr != null ? `${row.prod_ctr.toFixed(2)}%` : "-"}
+                  </td>
+
+                  <td className="border-b px-4 py-2 text-right">
+                    {row.prod_convs != null ? row.prod_convs.toFixed(2) : "-"}
+                  </td>
+
+                  <td className="border-b px-4 py-2 text-right">
+                    {row.prod_value != null
+                      ? `$${row.prod_value.toFixed(2)}`
+                      : "-"}
+                  </td>
+
+                  <td className="border-b px-4 py-2 text-right">
+                    {row.prod_costs != null
+                      ? `$${row.prod_costs.toFixed(2)}`
+                      : "-"}
+                  </td>
+
                   <td className="border-b px-4 py-2 text-right">
                     {row.prod_value && row.prod_costs
                       ? (row.prod_value / row.prod_costs).toFixed(2)
