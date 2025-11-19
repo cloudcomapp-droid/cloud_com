@@ -74,7 +74,7 @@ export async function getShoppingProducts(clientId, campaignId, startDate, endDa
       camp_name: camp.name,
       camp_type: camp.advertisingChannelType,
       prod_id: seg.productItemId,
-      prod_name: seg.productTitle || "Title not returned in GAds API fetch",
+      prod_name: seg.productTitle || "",
       prod_imprs: +met.impressions || 0,
       prod_clcks: +met.clicks || 0,
       prod_ctr: isNaN(+met.ctr) ? 0 : +met.ctr,

@@ -1,30 +1,6 @@
+import { AssetGroup, Campaign, Product } from "@/interfaces/interfaces";
 import { mergeProducts } from "@/utils/mergeProducts";
 import { useState, useEffect, useCallback } from "react";
-
-interface Campaign {
-  id: string;
-  name: string;
-}
-
-interface AssetGroup {
-  id: string;
-  name: string;
-  campaign?: string;
-}
-
-interface Product {
-  camp_id: string;
-  camp_name: string;
-  camp_type: string;
-  prod_id: string;
-  prod_name: string;
-  prod_imprs: number;
-  prod_clcks: number;
-  prod_ctr: number;
-  prod_convs: number;
-  prod_value: number;
-  prod_costs: number;
-}
 
 export function useFilters() {
   const API_URL = "/api";
@@ -138,8 +114,8 @@ export function useFilters() {
       }
 
       // ---- PARSE CUSTOM LABEL ----
-      // ejemplo: geräte***INDEX1
-      const [labelNameRaw, indexRaw] = customLabel.split("***");
+      // ejemplo: geräte--INDEX1
+      const [labelNameRaw, indexRaw] = customLabel.split(" -- ");
 
       if (!labelNameRaw || !indexRaw) {
         console.error("❌ Invalid custom label format");
@@ -170,9 +146,10 @@ export function useFilters() {
         const json = await resp.json();
 
         const data = json?.data?.matchedItems || [];
+        const dataWithDuplicates = json?.data?.allItems || [];
 
         setProductsByCustomLabel(data);
-        return data;
+        return { data, dataWithDuplicates };
       } catch (err) {
         console.error("❌ Failed to fetch custom label products:", err);
       }
@@ -256,6 +233,7 @@ export function useFilters() {
 
   // 🔹 Fetch inicial (campañas, cliente, asset groups, labels, productos)
   const fetchInitialFilters = useCallback(async (force = false) => {
+    const debug = false;
     try {
       // --- 1️⃣ Fetch campaigns ---
       const campList = await fetchCampaignsFromClient(clientId);
@@ -335,20 +313,14 @@ export function useFilters() {
 
       // 6️⃣ Order products
 
-      /*       console.log("Initial fetched products:", {
-        productsCampaing,
-        productsAssetGroup,
-        productsByLabel,
-      }); */
-
       const productsMerged = mergeProducts(
         productsCampaing || [],
         productsAssetGroup || [],
-        productsByLabel || []
+        productsByLabel?.data || []
       );
 
       setProducts(productsMerged);
-      console.log("Merged products:", productsMerged);
+      if (debug) console.log("Merged products:", productsMerged);
     } catch (err) {
       console.error("Failed to fetch filters:", err);
     }

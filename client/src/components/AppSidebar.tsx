@@ -62,7 +62,6 @@ type MenuSection = {
 // Main items (always visible)
 const mainItems: MenuItem[] = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "All Products", url: "/all-products", icon: List },
 ];
 
 // Collapsible sections
@@ -77,6 +76,7 @@ const performanceSection: MenuSection = {
     { title: "Hopeless", url: "/performance/hopeless", icon: XCircle, color: "text-red-500" },
     { title: "Numb", url: "/performance/numb", icon: BarChart3, color: "text-slate-500" },
     { title: "Silent", url: "/performance/silent", icon: Volume2, color: "text-slate-500" },
+    { title: "All Products", url: "/performance/all-products", icon: List, color: "text-primary" },
   ]
 };
 

@@ -52,11 +52,11 @@ export async function getClientCustomLabels(clientId) {
     if (!p) continue;
 
     allLabels.push(
-      p.customAttribute0 && `${p.customAttribute0}***INDEX0`,
-      p.customAttribute1 && `${p.customAttribute1}***INDEX1`,
-      p.customAttribute2 && `${p.customAttribute2}***INDEX2`,
-      p.customAttribute3 && `${p.customAttribute3}***INDEX3`,
-      p.customAttribute4 && `${p.customAttribute4}***INDEX4`
+      p.customAttribute0 && `${p.customAttribute0} -- INDEX0`,
+      p.customAttribute1 && `${p.customAttribute1} -- INDEX1`,
+      p.customAttribute2 && `${p.customAttribute2} -- INDEX2`,
+      p.customAttribute3 && `${p.customAttribute3} -- INDEX3`,
+      p.customAttribute4 && `${p.customAttribute4} -- INDEX4`
     );
   }
 
