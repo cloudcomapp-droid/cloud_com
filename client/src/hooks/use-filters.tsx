@@ -114,8 +114,8 @@ export function useFilters() {
       }
 
       // ---- PARSE CUSTOM LABEL ----
-      // ejemplo: geräte***INDEX1
-      const [labelNameRaw, indexRaw] = customLabel.split("***");
+      // ejemplo: geräte--INDEX1
+      const [labelNameRaw, indexRaw] = customLabel.split(" -- ");
 
       if (!labelNameRaw || !indexRaw) {
         console.error("❌ Invalid custom label format");
