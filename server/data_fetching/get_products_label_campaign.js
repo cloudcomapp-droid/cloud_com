@@ -12,13 +12,10 @@ export async function getProductsCampaignLabels(
 ) {
   if (!clientId) clientId = "4693401961";
 
-  // Access token
   const accessToken = await getAccessToken();
 
-  // Build URL
   const url = `https://googleads.googleapis.com/v21/customers/${clientId}/googleAds:searchStream`;
 
-  // Query
   const query = `
     SELECT 
       shopping_product.issues,
@@ -33,7 +30,6 @@ export async function getProductsCampaignLabels(
     WHERE campaign.id = ${campID}
   `;
 
-  // Request config
   const options = {
     method: "POST",
     headers: {
@@ -45,7 +41,6 @@ export async function getProductsCampaignLabels(
     body: JSON.stringify({ query }),
   };
 
-  // Fetch data
   const response = await fetch(url, options);
   if (!response.ok) {
     throw new Error(
@@ -56,7 +51,7 @@ export async function getProductsCampaignLabels(
   const chunks = await response.json();
 
   // Arrays
-  const allItemIds = [];
+  const allItems = [];       // → ahora guarda { itemId, title }
   const todayIds = [];
   const todayTitles = [];
 
@@ -79,9 +74,10 @@ export async function getProductsCampaignLabels(
         prod.customAttribute4,
       ];
 
-      allItemIds.push(itemId);
+      // ALL ITEMS (ANTES: solo IDs)
+      allItems.push({ itemId, title });
 
-      // Find label
+      // LABEL MATCH
       let label = attrs[indexToFetch];
 
       if (label === selCustLbl) {
@@ -91,17 +87,24 @@ export async function getProductsCampaignLabels(
     }
   }
 
-  // Deduplicate
-  const uniqueAllIds = [...new Set(allItemIds)];
-  const uniqueTodayIds = [...new Set(todayIds)];
+  // Deduplicate allItems by itemId
+  const uniqueAllItemsMap = new Map();
+  for (const item of allItems) {
+    if (!uniqueAllItemsMap.has(item.itemId)) {
+      uniqueAllItemsMap.set(item.itemId, item);
+    }
+  }
+  const uniqueAllItems = Array.from(uniqueAllItemsMap.values());
 
+  // Dedupe matched IDs
+  const uniqueTodayIds = [...new Set(todayIds)];
   const uniqueTodayTitles = uniqueTodayIds.map((id) => {
     const idx = todayIds.indexOf(id);
     return todayTitles[idx] || "";
   });
 
   return {
-    allItems: uniqueAllIds,
+    allItems: uniqueAllItems, // ahora es [{ itemId, title }]
     matchedItems: uniqueTodayIds.map((id, i) => ({
       itemId: id,
       title: uniqueTodayTitles[i],
