@@ -138,9 +138,9 @@ const AllProducts = () => {
               </Select>
             </div>
 
-            <div>
+            <div className="">
               <table className="w-full border-collapse table-auto">
-                <thead>
+                <thead className="sticky top-36 bg-card z-20 shadow-sm">
                   <tr className="border-b border-border text-muted-foreground text-sm">
                     <th className="border-b px-1 py-3 max-w-[150px] min-w-[100px]" >Camp ID</th>
                     <th className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">Camp Name</th>
