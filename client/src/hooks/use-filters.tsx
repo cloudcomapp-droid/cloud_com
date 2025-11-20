@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 
 export function useFilters() {
   const API_URL = "/api";
-  const initialClientId = "4693401961";
+  const initialClientId = "8240545219";//"4693401961";
   const initialCampaignId = "22556496600";
   const initialAssetGroupId = "6576572641";
   const [clientId, setClientId] = useState(initialClientId);
@@ -158,10 +158,12 @@ export function useFilters() {
   );
 
   const fetchClientName = useCallback(
-    async (id: string) => {
+    async (id: string, force = false) => {
       try {
         const respClient = await fetch(
-          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(id)}`,
+          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(id)}${
+            force ? "&fetch=1" : ""
+          }`,
           { credentials: "include" }
         );
         const jsonClient = await respClient.json();
@@ -240,7 +242,7 @@ export function useFilters() {
       setSelectedCampaign(campList?.find((c) => c.id === initialCampaignId));
 
       // --- 2️⃣ Fetch client name ---
-      await fetchClientName(clientId);
+      await fetchClientName(clientId, force);
 
       // --- 3️⃣ Fetch all asset groups ---
       if (campList.length > 0) {
@@ -318,6 +320,7 @@ export function useFilters() {
         productsAssetGroup || [],
         productsByLabel?.data || []
       );
+
 
       setProducts(productsMerged);
       if (debug) console.log("Merged products:", productsMerged);
