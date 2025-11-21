@@ -3,7 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Save, TrendingUp, AlertTriangle, XCircle, BarChart3, Volume2 } from "lucide-react";
+import {
+  ShoppingCart,
+  Save,
+  TrendingUp,
+  AlertTriangle,
+  XCircle,
+  BarChart3,
+  Volume2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface ClassificationRules {
@@ -18,13 +26,14 @@ export default function Classification() {
     cashCowRoas: 3,
     cashCowConv: 1,
     poorDogRoas: 1,
-    hopelessCost: 30
+    hopelessCost: 30,
   });
 
   useEffect(() => {
-    document.title = "Klassifizierung – Google Ads Product Commander";
+    document.title = "Classification rules – Google Ads Product Commander";
 
-    const desc = "Konfigurieren Sie die Regeln für die automatische Produktklassifizierung nach Performance-Kriterien.";
+    const desc =
+      "Configure the rules for automatic product classification based on performance criteria.";
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -33,7 +42,9 @@ export default function Classification() {
     }
     meta.setAttribute("content", desc);
 
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    let canonical = document.querySelector(
+      'link[rel="canonical"]'
+    ) as HTMLLinkElement | null;
     if (!canonical) {
       canonical = document.createElement("link");
       canonical.setAttribute("rel", "canonical");
@@ -50,14 +61,17 @@ export default function Classification() {
 
   const handleSave = () => {
     localStorage.setItem("classificationRules", JSON.stringify(rules));
-    toast.success("Klassifizierungsregeln gespeichert");
+    toast.success("Classification rules saved");
   };
 
-  const handleRuleChange = (field: keyof ClassificationRules, value: string) => {
+  const handleRuleChange = (
+    field: keyof ClassificationRules,
+    value: string
+  ) => {
     const numValue = parseFloat(value) || 0;
-    setRules(prev => ({
+    setRules((prev) => ({
       ...prev,
-      [field]: numValue
+      [field]: numValue,
     }));
   };
 
@@ -71,8 +85,12 @@ export default function Classification() {
               <ShoppingCart className="h-6 w-6 text-purple-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Klassifizierung</h1>
-              <p className="text-muted-foreground">Definieren Sie die Regeln für die automatische Produktklassifizierung</p>
+              <h1 className="text-2xl font-bold text-foreground">
+                Classification rules
+              </h1>
+              <p className="text-muted-foreground">
+                Define the rules for automatic product classification
+              </p>
             </div>
           </div>
         </div>
@@ -81,22 +99,22 @@ export default function Classification() {
       {/* Classification Rules */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl space-y-6">
-          
           {/* Editable Rules Card */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5 text-purple-500" />
-                Klassifizierungsregeln
+                Automatic Rules
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              
               {/* Cash Cows */}
               <div className="grid grid-cols-12 gap-4 items-center p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
                 <div className="col-span-3 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-emerald-600" />
-                  <span className="font-medium text-emerald-600">Cash Cows</span>
+                  <span className="font-medium text-emerald-600">
+                    Cash Cows
+                  </span>
                 </div>
                 <div className="col-span-2">
                   <Label className="text-xs">ROAS ≥</Label>
@@ -104,7 +122,9 @@ export default function Classification() {
                     type="number"
                     step="0.1"
                     value={rules.cashCowRoas}
-                    onChange={(e) => handleRuleChange('cashCowRoas', e.target.value)}
+                    onChange={(e) =>
+                      handleRuleChange("cashCowRoas", e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -113,7 +133,9 @@ export default function Classification() {
                   <Input
                     type="number"
                     value={rules.cashCowConv}
-                    onChange={(e) => handleRuleChange('cashCowConv', e.target.value)}
+                    onChange={(e) =>
+                      handleRuleChange("cashCowConv", e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -134,12 +156,16 @@ export default function Classification() {
                     type="number"
                     step="0.1"
                     value={rules.poorDogRoas}
-                    onChange={(e) => handleRuleChange('poorDogRoas', e.target.value)}
+                    onChange={(e) =>
+                      handleRuleChange("poorDogRoas", e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
                 <div className="col-span-2">
-                  <Label className="text-xs text-muted-foreground">ROAS &lt;</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    ROAS &lt;
+                  </Label>
                   <Input
                     value={rules.cashCowRoas}
                     disabled
@@ -147,7 +173,8 @@ export default function Classification() {
                   />
                 </div>
                 <div className="col-span-5 text-xs text-muted-foreground">
-                  {rules.poorDogRoas} ≤ ROAS &lt; {rules.cashCowRoas} + Komplementär zu Cash Cows
+                  {rules.poorDogRoas} ≤ ROAS &lt; {rules.cashCowRoas} +
+                  Complementary to Cash Cows
                 </div>
               </div>
 
@@ -158,7 +185,9 @@ export default function Classification() {
                   <span className="font-medium text-red-600">Hopeless</span>
                 </div>
                 <div className="col-span-2">
-                  <Label className="text-xs text-muted-foreground">ROAS &lt;</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    ROAS &lt;
+                  </Label>
                   <Input
                     value={rules.poorDogRoas}
                     disabled
@@ -170,7 +199,9 @@ export default function Classification() {
                   <Input
                     type="number"
                     value={rules.hopelessCost}
-                    onChange={(e) => handleRuleChange('hopelessCost', e.target.value)}
+                    onChange={(e) =>
+                      handleRuleChange("hopelessCost", e.target.value)
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -178,17 +209,17 @@ export default function Classification() {
                   ROAS &lt; {rules.poorDogRoas} AND Cost ≥ ${rules.hopelessCost}
                 </div>
               </div>
-
             </CardContent>
           </Card>
 
           {/* Automatic Rules Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base text-muted-foreground">Automatische Regeln</CardTitle>
+              <CardTitle className="text-base text-muted-foreground">
+                Automatische Regeln
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              
               {/* Numb */}
               <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-950/20 rounded">
                 <div className="flex items-center gap-2">
@@ -196,7 +227,7 @@ export default function Classification() {
                   <span className="font-medium text-slate-600">Numb</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  ROAS &lt; {rules.poorDogRoas} + Komplementär zu Hopeless
+                  ROAS &lt; {rules.poorDogRoas} + Complementary to Hopeless
                 </div>
               </div>
 
@@ -207,10 +238,9 @@ export default function Classification() {
                   <span className="font-medium text-gray-600">Silent</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  ROAS = 0 AND Cost = $0 (keine Aktivität)
+                  ROAS = 0 AND Cost = $0 (no activity)
                 </div>
               </div>
-
             </CardContent>
           </Card>
 
@@ -218,7 +248,7 @@ export default function Classification() {
           <div className="flex justify-end">
             <Button onClick={handleSave} className="gap-2">
               <Save className="h-4 w-4" />
-              Regeln speichern
+              Save Rules
             </Button>
           </div>
         </div>

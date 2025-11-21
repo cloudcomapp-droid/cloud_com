@@ -1,12 +1,12 @@
 import { AssetGroup, Campaign, Product } from "@/interfaces/interfaces";
-import { mergeProducts } from "@/utils/mergeProducts";
+import { findDuplicatesByItemId, mergeProducts } from "@/utils/mergeProducts";
 import { useState, useEffect, useCallback } from "react";
 
 export function useFilters() {
   const API_URL = "/api";
-  const initialClientId = "8240545219";//"4693401961";
-  const initialCampaignId = "22556496600";
-  const initialAssetGroupId = "6576572641";
+  const initialClientId = "4693401961"; //;"8240545219"
+  const initialCampaignId = "22556496600"; //"18887820881"
+  const initialAssetGroupId = "6576572641"; // "6456568220"
   const [clientId, setClientId] = useState(initialClientId);
 
   const [clientName, setClientName] = useState("");
@@ -55,8 +55,6 @@ export function useFilters() {
         const productsList: Product[] = Array.isArray(json?.data)
           ? json.data
           : [];
-        console.log("products:", productsList);
-        setProducts(productsList);
         return productsList;
       } catch (err) {
         console.error("Failed to fetch products:", err);
@@ -176,10 +174,12 @@ export function useFilters() {
   );
 
   const fetchCampaignsFromClient = useCallback(
-    async (id: string) => {
+    async (id: string, force = false) => {
       try {
         const respCamps = await fetch(
-          `${API_URL}/google-campaigns?clientId=${encodeURIComponent(id)}`,
+          `${API_URL}/google-campaigns?clientId=${encodeURIComponent(id)}${
+            force ? "&fetch=1" : ""
+          }`,
           { credentials: "include" }
         );
         const jsonCamps = await respCamps.json();
@@ -238,7 +238,8 @@ export function useFilters() {
     const debug = false;
     try {
       // --- 1️⃣ Fetch campaigns ---
-      const campList = await fetchCampaignsFromClient(clientId);
+      const campList = await fetchCampaignsFromClient(clientId, force);
+      if (debug) console.log("Fetched campaigns:", campList);
       setSelectedCampaign(campList?.find((c) => c.id === initialCampaignId));
 
       // --- 2️⃣ Fetch client name ---
@@ -313,6 +314,12 @@ export function useFilters() {
         allLabels[1]
       );
 
+      if (debug) {
+        const duplicates = findDuplicatesByItemId(
+          productsByLabel.dataWithDuplicates || []
+        );
+        console.log("Found duplicates by itemId:", duplicates);
+      }
       // 6️⃣ Order products
 
       const productsMerged = mergeProducts(
@@ -320,7 +327,6 @@ export function useFilters() {
         productsAssetGroup || [],
         productsByLabel?.data || []
       );
-
 
       setProducts(productsMerged);
       if (debug) console.log("Merged products:", productsMerged);

@@ -51,11 +51,10 @@ export async function getProductsCampaignLabels(
   const chunks = await response.json();
 
   // Arrays
-  const allItems = [];       // → ahora guarda { itemId, title }
+  const allItems = [];
   const todayIds = [];
   const todayTitles = [];
 
-  // Process chunks
   for (const chunk of chunks) {
     if (!chunk.results) continue;
 
@@ -74,12 +73,26 @@ export async function getProductsCampaignLabels(
         prod.customAttribute4,
       ];
 
-      // ALL ITEMS (ANTES: solo IDs)
-      allItems.push({ itemId, title });
+      // SAVE ALL ITEMS
+      allItems.push({ itemId, title, attrs });
 
-      // LABEL MATCH
-      let label = attrs[indexToFetch];
+      // CASE: "all" → means: match ALL PRODUCTS
+      if (selCustLbl === "all") {
+        // Build title with attributes
+        const cleanedAttrs = attrs.filter((x) => x && x.trim() !== "");
+        const finalTitle =
+          cleanedAttrs.length > 0
+            ? `${title};${cleanedAttrs.join(";")}`
+            : title;
 
+        todayIds.push(itemId);
+        todayTitles.push(finalTitle);
+
+        continue;
+      }
+
+      // NORMAL CASE → filter by single label
+      const label = attrs[indexToFetch];
       if (label === selCustLbl) {
         todayIds.push(itemId);
         todayTitles.push(title);
@@ -88,13 +101,9 @@ export async function getProductsCampaignLabels(
   }
 
   // Deduplicate allItems by itemId
-  const uniqueAllItemsMap = new Map();
-  for (const item of allItems) {
-    if (!uniqueAllItemsMap.has(item.itemId)) {
-      uniqueAllItemsMap.set(item.itemId, item);
-    }
-  }
-  const uniqueAllItems = Array.from(uniqueAllItemsMap.values());
+  const uniqueAllItems = Array.from(
+    new Map(allItems.map((i) => [i.itemId, i])).values()
+  );
 
   // Dedupe matched IDs
   const uniqueTodayIds = [...new Set(todayIds)];
@@ -104,7 +113,8 @@ export async function getProductsCampaignLabels(
   });
 
   return {
-    allItems: uniqueAllItems, // ahora es [{ itemId, title }]
+    allItems,
+    uniqueAllItems,
     matchedItems: uniqueTodayIds.map((id, i) => ({
       itemId: id,
       title: uniqueTodayTitles[i],

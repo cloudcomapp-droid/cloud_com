@@ -21,4 +21,5 @@ export interface Product {
   prod_convs: number;
   prod_value: number;
   prod_costs: number;
+  prod_roas: number;
 }
