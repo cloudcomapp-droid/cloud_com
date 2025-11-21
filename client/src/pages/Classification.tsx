@@ -11,8 +11,12 @@ import {
   XCircle,
   BarChart3,
   Volume2,
+  Pencil,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { OutletCtx } from "@/interfaces/interfaces";
+import { useOutletContext } from "react-router-dom";
 
 interface ClassificationRules {
   cashCowRoas: number;
@@ -22,57 +26,51 @@ interface ClassificationRules {
 }
 
 export default function Classification() {
-  const [rules, setRules] = useState<ClassificationRules>({
-    cashCowRoas: 3,
-    cashCowConv: 1,
-    poorDogRoas: 1,
-    hopelessCost: 30,
-  });
+  const { classificationRules, setClassificationRules } =
+    useOutletContext<OutletCtx>();
+
+  // Local state for editing
+  const [localRules, setLocalRules] = useState<ClassificationRules>(
+    classificationRules
+  );
+
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    document.title = "Classification rules – Google Ads Product Commander";
+    document.title =
+      "Classification rules – Google Ads Product Commander";
 
-    const desc =
-      "Configure the rules for automatic product classification based on performance criteria.";
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "description");
-      document.head.appendChild(meta);
-    }
-    meta.setAttribute("content", desc);
-
-    let canonical = document.querySelector(
-      'link[rel="canonical"]'
-    ) as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute("href", window.location.origin + "/classification");
-
-    // Load saved rules from localStorage
     const saved = localStorage.getItem("classificationRules");
     if (saved) {
-      setRules(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      setClassificationRules(parsed);
+      setLocalRules(parsed);
     }
   }, []);
 
-  const handleSave = () => {
-    localStorage.setItem("classificationRules", JSON.stringify(rules));
-    toast.success("Classification rules saved");
+  const handleRuleChange = (key: keyof ClassificationRules, value: any) => {
+    if (!isEditing) return;
+    setLocalRules((prev) => ({
+      ...prev,
+      [key]: Number(value),
+    }));
   };
 
-  const handleRuleChange = (
-    field: keyof ClassificationRules,
-    value: string
-  ) => {
-    const numValue = parseFloat(value) || 0;
-    setRules((prev) => ({
-      ...prev,
-      [field]: numValue,
-    }));
+  const startEditing = () => {
+    setLocalRules(classificationRules); // reset to original
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setLocalRules(classificationRules); // rollback
+    setIsEditing(false);
+  };
+
+  const handleSave = () => {
+    setClassificationRules(localRules);
+    toast.success("Rules saved successfully!");
+    setIsEditing(false);
   };
 
   return (
@@ -85,9 +83,7 @@ export default function Classification() {
               <ShoppingCart className="h-6 w-6 text-purple-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Classification rules
-              </h1>
+              <h1 className="text-2xl font-bold">Classification rules</h1>
               <p className="text-muted-foreground">
                 Define the rules for automatic product classification
               </p>
@@ -96,51 +92,80 @@ export default function Classification() {
         </div>
       </div>
 
-      {/* Classification Rules */}
+      {/* Main */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-3xl space-y-6">
+
           {/* Editable Rules Card */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row justify-between items-center">
               <CardTitle className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5 text-purple-500" />
                 Automatic Rules
               </CardTitle>
+
+              {!isEditing ? (
+                <Button variant="outline" className="gap-2" onClick={startEditing}>
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button className="gap-1" onClick={handleSave}>
+                    <Save className="h-4 w-4" />
+                    Save
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="gap-1"
+                    onClick={cancelEditing}
+                  >
+                    <X className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </CardHeader>
+
             <CardContent className="space-y-4">
+
               {/* Cash Cows */}
               <div className="grid grid-cols-12 gap-4 items-center p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg">
                 <div className="col-span-3 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-emerald-600" />
-                  <span className="font-medium text-emerald-600">
-                    Cash Cows
-                  </span>
+                  <span className="font-medium text-emerald-600">Cash Cows</span>
                 </div>
+
                 <div className="col-span-2">
                   <Label className="text-xs">ROAS ≥</Label>
                   <Input
                     type="number"
+                    disabled={!isEditing}
                     step="0.1"
-                    value={rules.cashCowRoas}
+                    value={localRules.cashCowRoas}
                     onChange={(e) =>
                       handleRuleChange("cashCowRoas", e.target.value)
                     }
                     className="h-8 text-sm"
                   />
                 </div>
+
                 <div className="col-span-2">
                   <Label className="text-xs">Conv ≥</Label>
                   <Input
                     type="number"
-                    value={rules.cashCowConv}
+                    disabled={!isEditing}
+                    value={localRules.cashCowConv}
                     onChange={(e) =>
                       handleRuleChange("cashCowConv", e.target.value)
                     }
                     className="h-8 text-sm"
                   />
                 </div>
+
                 <div className="col-span-5 text-xs text-muted-foreground">
-                  ROAS ≥ {rules.cashCowRoas} AND Conv ≥ {rules.cashCowConv}
+                  ROAS ≥ {localRules.cashCowRoas} AND Conv ≥{" "}
+                  {localRules.cashCowConv}
                 </div>
               </div>
 
@@ -150,31 +175,32 @@ export default function Classification() {
                   <AlertTriangle className="h-4 w-4 text-orange-600" />
                   <span className="font-medium text-orange-600">Poor Dogs</span>
                 </div>
+
                 <div className="col-span-2">
                   <Label className="text-xs">ROAS ≥</Label>
                   <Input
                     type="number"
+                    disabled={!isEditing}
                     step="0.1"
-                    value={rules.poorDogRoas}
+                    value={localRules.poorDogRoas}
                     onChange={(e) =>
                       handleRuleChange("poorDogRoas", e.target.value)
                     }
                     className="h-8 text-sm"
                   />
                 </div>
+
                 <div className="col-span-2">
-                  <Label className="text-xs text-muted-foreground">
-                    ROAS &lt;
-                  </Label>
+                  <Label className="text-xs">ROAS &lt;</Label>
                   <Input
-                    value={rules.cashCowRoas}
+                    value={localRules.cashCowRoas}
                     disabled
                     className="h-8 text-sm bg-muted/50"
                   />
                 </div>
+
                 <div className="col-span-5 text-xs text-muted-foreground">
-                  {rules.poorDogRoas} ≤ ROAS &lt; {rules.cashCowRoas} +
-                  Complementary to Cash Cows
+                  {localRules.poorDogRoas} ≤ ROAS &lt; {localRules.cashCowRoas}
                 </div>
               </div>
 
@@ -184,35 +210,38 @@ export default function Classification() {
                   <XCircle className="h-4 w-4 text-red-600" />
                   <span className="font-medium text-red-600">Hopeless</span>
                 </div>
+
                 <div className="col-span-2">
-                  <Label className="text-xs text-muted-foreground">
-                    ROAS &lt;
-                  </Label>
+                  <Label className="text-xs">ROAS &lt;</Label>
                   <Input
-                    value={rules.poorDogRoas}
+                    value={localRules.poorDogRoas}
                     disabled
                     className="h-8 text-sm bg-muted/50"
                   />
                 </div>
+
                 <div className="col-span-2">
                   <Label className="text-xs">Cost ≥ $</Label>
                   <Input
                     type="number"
-                    value={rules.hopelessCost}
+                    disabled={!isEditing}
+                    value={localRules.hopelessCost}
                     onChange={(e) =>
                       handleRuleChange("hopelessCost", e.target.value)
                     }
                     className="h-8 text-sm"
                   />
                 </div>
+
                 <div className="col-span-5 text-xs text-muted-foreground">
-                  ROAS &lt; {rules.poorDogRoas} AND Cost ≥ ${rules.hopelessCost}
+                  ROAS &lt; {localRules.poorDogRoas} AND Cost ≥ $
+                  {localRules.hopelessCost}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Automatic Rules Card */}
+          {/* Automatic Info Card (unchanged, read-only always) */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base text-muted-foreground">
@@ -220,18 +249,16 @@ export default function Classification() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {/* Numb */}
               <div className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-950/20 rounded">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4 text-slate-600" />
                   <span className="font-medium text-slate-600">Numb</span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  ROAS &lt; {rules.poorDogRoas} + Complementary to Hopeless
+                  ROAS &lt; {localRules.poorDogRoas}
                 </div>
               </div>
 
-              {/* Silent */}
               <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-950/20 rounded">
                 <div className="flex items-center gap-2">
                   <Volume2 className="h-4 w-4 text-gray-600" />
@@ -243,14 +270,6 @@ export default function Classification() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button onClick={handleSave} className="gap-2">
-              <Save className="h-4 w-4" />
-              Save Rules
-            </Button>
-          </div>
         </div>
       </div>
     </div>

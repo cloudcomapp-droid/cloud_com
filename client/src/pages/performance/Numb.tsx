@@ -18,9 +18,9 @@ export default function Numb() {
   const numbData = products
     ?.filter(
       (p) =>
-        p.prod_roas < classificationRules.numbRoas &&
+        p.prod_roas < classificationRules.poorDogRoas &&
         p.prod_roas >= 0 &&
-        p.prod_costs < classificationRules.numbCosts &&
+        p.prod_costs < classificationRules.hopelessCost &&
         p.prod_costs >= 0 &&
         p.prod_imprs > 0
     )
@@ -107,7 +107,7 @@ export default function Numb() {
 
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-warning">{avgRoas}</div>
+              <div className="text-2xl font-bold text-gray-500">{avgRoas}</div>
               <div className="text-sm text-muted-foreground">Average ROAS</div>
             </CardContent>
           </Card>
@@ -154,10 +154,10 @@ export default function Numb() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
                       ID
                     </th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
                       Product Name
                     </th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">
@@ -190,11 +190,11 @@ export default function Numb() {
                       key={product.prod_id}
                       className="border-b border-border hover:bg-muted/50 transition-colors"
                     >
-                      <td className="py-4 px-4 font-mono text-sm text-muted-foreground">
+                      <td className="py-4 px-4 text-center">
                         {product.prod_id}
                       </td>
 
-                      <td className="py-4 px-4 font-medium">
+                      <td className="py-4 px-4 text-center">
                         {product.prod_name}
                       </td>
 
@@ -225,7 +225,7 @@ export default function Numb() {
                       <td className="text-center py-4 px-4">
                         <Badge
                           variant="secondary"
-                          className="bg-warning/10 text-warning"
+                          className="bg-gray-500 text-white"
                         >
                           {product.prod_roas?.toFixed(2)}
                         </Badge>
