@@ -96,8 +96,8 @@ const managementSection: MenuSection = {
   icon: Users,
   color: "text-purple-500",
   items: [
-    { title: "Google Ads Konto", url: "/google-ads-account", icon: Target, color: "text-purple-500" },
-    { title: "Klassifizierung", url: "/classification", icon: ShoppingCart, color: "text-purple-500" },
+    { title: "Google Ads Account", url: "/google-ads-account", icon: Target, color: "text-purple-500" },
+    { title: "Classification", url: "/classification", icon: ShoppingCart, color: "text-purple-500" },
   ]
 };
 
