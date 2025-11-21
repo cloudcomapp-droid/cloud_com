@@ -23,3 +23,9 @@ export interface Product {
   prod_costs: number;
   prod_roas: number;
 }
+
+export interface OutletCtx {
+  products: Product[];
+  classificationRules: any;
+  setClassificationRules: (rules: any) => void;
+};

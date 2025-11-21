@@ -59,12 +59,16 @@ export default function Silent() {
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 Silent
-                <Badge variant="secondary" className="bg-muted/10 text-muted-foreground">
+                <Badge
+                  variant="secondary"
+                  className="bg-muted/10 text-muted-foreground"
+                >
                   No Activity
                 </Badge>
               </h1>
               <p className="text-muted-foreground">
-                Products generating no measurable activity — no impressions, clicks, or conversions.
+                Products generating no measurable activity — no impressions,
+                clicks, or conversions.
               </p>
             </div>
           </div>
@@ -73,14 +77,11 @@ export default function Silent() {
 
       {/* MAIN CONTENT */}
       <div className="container mx-auto px-4 py-8 space-y-6">
-
         {/* SUMMARY */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold">
-                {silentData?.length}
-              </div>
+              <div className="text-2xl font-bold">{silentData?.length}</div>
               <div className="text-sm text-muted-foreground">Products</div>
             </CardContent>
           </Card>
@@ -110,8 +111,12 @@ export default function Silent() {
         {/* ALERT */}
         <Card className="bg-muted/5 border-muted">
           <CardContent className="p-6 text-center">
-            <div className="text-3xl font-bold text-muted-foreground mb-2">🔇 No Activity</div>
-            <p className="text-muted-foreground">These products have generated zero measurable data.</p>
+            <div className="text-3xl font-bold text-muted-foreground mb-2">
+              🔇 No Activity
+            </div>
+            <p className="text-muted-foreground">
+              These products have generated zero measurable data.
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
               Review your campaign setup and product availability.
             </p>
@@ -144,12 +149,24 @@ export default function Silent() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="px-4 py-3 text-left">ID</th>
-                    <th className="px-4 py-3 text-left">Product Name</th>
-                    <th className="px-4 py-3 text-center">Impressions</th>
-                    <th className="px-4 py-3 text-center">Clicks</th>
-                    <th className="px-4 py-3 text-center">Conversions</th>
-                    <th className="px-4 py-3 text-center">Possible Cause</th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      ID
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Product Name
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Impressions
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Clicks
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Conversions
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Possible Cause
+                    </th>
                   </tr>
                 </thead>
 
@@ -157,31 +174,30 @@ export default function Silent() {
                   {silentData?.map((p) => (
                     <tr
                       key={p.prod_id}
-                      className="border-b border-border hover:bg-muted/50 transition-colors"
+                      className="border-b border-border hover:bg-muted/50"
                     >
-                      <td className="px-4 py-4 font-mono text-muted-foreground">{p.prod_id}</td>
+                      <td className="px-4 py-4 text-center">{p.prod_id}</td>
 
-                      <td className="px-4 py-4 font-medium">{p.prod_name}</td>
+                      <td className="px-4 py-4 text-center">{p.prod_name}</td>
+                      <td className="px-4 py-4 text-center">{p.prod_imprs}</td>
 
-                      <td className="px-4 py-4 text-center text-muted-foreground">{p.prod_imprs}</td>
+                      <td className="px-4 py-4 text-center">{p.prod_clcks}</td>
 
-                      <td className="px-4 py-4 text-center text-muted-foreground">{p.prod_clcks}</td>
+                      <td className="px-4 py-4 text-center ">{p.prod_convs}</td>
 
-                      <td className="px-4 py-4 text-center text-muted-foreground">{p.prod_convs}</td>
-
-                      <td className="px-4 py-4 text-center text-xs text-muted-foreground">
-{/*                         {
+                      <td className="px-4 py-4 text-center">
+                        {/*                         {
                           p.prod_campaign_status === "paused"
                             ? "Campaign paused"
                             : p.prod_budget === 0
                             ? "No budget"
                             : "No activity detected"
-                        } */}No activity detected
+                        } */}
+                        No activity detected
                       </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
             </div>
           </CardContent>
@@ -190,7 +206,9 @@ export default function Silent() {
         {/* ACTIONS */}
         <Card className="border-l-4 border-l-muted-foreground">
           <CardHeader>
-            <CardTitle className="text-muted-foreground">Recommended Actions</CardTitle>
+            <CardTitle className="text-muted-foreground">
+              Recommended Actions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
@@ -203,7 +221,6 @@ export default function Silent() {
             </ul>
           </CardContent>
         </Card>
-
       </div>
     </div>
   );

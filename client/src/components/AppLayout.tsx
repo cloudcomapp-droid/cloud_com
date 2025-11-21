@@ -25,15 +25,8 @@ export default function AppLayout() {
       : {
           cashCowRoas: 3,
           cashCowConv: 1,
-          poorDogRoasMax: 3,
-          poorDogRoasMin: 1,
-          poorDogConv: 1,
+          poorDogRoas: 1,
           hopelessCost: 10,
-          hopelessRoas: 1,
-          numbRoas: 1,
-          numbCosts:10,
-          silentRoas: 0,
-          silentCosts:0,
         };
   });
 

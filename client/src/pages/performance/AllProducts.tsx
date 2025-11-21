@@ -162,12 +162,12 @@ const AllProducts = () => {
                       key={i}
                       className="border-b border-border hover:bg-muted/50 transition-colors"
                     >
-                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">{row.camp_id}</td>
-                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">{row.camp_name}</td>
-                      <td className="border-b px-1 py-1 font-mono text-sm break-words max-w-[150px] min-w-[100px] whitespace-normal">
+                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px] text-center">{row.camp_id}</td>
+                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px] text-center">{row.camp_name}</td>
+                      <td className="border-b px-1 py-1 break-words max-w-[150px] min-w-[100px] text-center">
                         {row.prod_id}
                       </td>
-                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px]">{row.prod_name}</td>
+                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px] text-center">{row.prod_name}</td>
                       <td className="text-center px-4 py-3">{row.prod_imprs}</td>
                       <td className="text-center px-4 py-3">{row.prod_clcks}</td>
                       <td className="text-center px-4 py-3">
@@ -183,7 +183,7 @@ const AllProducts = () => {
                         {row.prod_costs?.toFixed(2) ?? "0.00"}
                       </td>
                       <td className="text-center px-4 py-3">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
+                        <Badge variant="secondary" className="bg-primary text-success-foreground">
                           {row.prod_value && row.prod_costs
                             ? (row.prod_value / row.prod_costs).toFixed(2)
                             : "0.00"}

@@ -19,10 +19,10 @@ export default function PoorDogs() {
   const poorDogsData = products
     ?.filter(
       (p) =>
-        p.prod_roas >= classificationRules.poorDogRoasMin &&
-        p.prod_roas < classificationRules.poorDogRoasMax
+        p.prod_roas >= classificationRules.poorDogRoas &&
+        p.prod_roas < classificationRules.cashCowRoas
         ||
-        (p.prod_roas >= classificationRules.poorDogRoasMax && p.prod_convs < classificationRules.poorDogConv)
+        (p.prod_roas >= classificationRules.cashCowRoas && p.prod_convs < classificationRules.cashCowConv)
     )
     .map((p) => ({ ...p }));
 
@@ -134,15 +134,15 @@ export default function PoorDogs() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4">ID</th>
-                    <th className="text-left py-3 px-4">Product Name</th>
-                    <th className="text-center py-3 px-4">Impressions</th>
-                    <th className="text-center py-3 px-4">Clicks</th>
-                    <th className="text-center py-3 px-4">CTR</th>
-                    <th className="text-center py-3 px-4">Conv</th>
-                    <th className="text-center py-3 px-4">Value</th>
-                    <th className="text-center py-3 px-4">Costs</th>
-                    <th className="text-center py-3 px-4">ROAS</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">ID</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">Product Name</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">Impressions</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">Clicks</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">CTR</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">Conv</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">Value</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">Costs</th>
+                    <th className="text-center py-3 px-4 text-muted-foreground font-medium">ROAS</th>
                   </tr>
                 </thead>
 
@@ -150,13 +150,13 @@ export default function PoorDogs() {
                   {poorDogsData?.map((p) => (
                     <tr
                       key={p.prod_id}
-                      className="border-b border-border hover:bg-muted/50 transition-colors"
+                      className="border-b border-border hover:bg-muted/50"
                     >
-                      <td className="py-4 px-4 font-mono text-sm text-muted-foreground">
+                      <td className="py-4 px-4 text-center ">
                         {p.prod_id}
                       </td>
 
-                      <td className="py-4 px-4 font-medium">
+                      <td className="py-4 px-4 text-center">
                         {p.prod_name}
                       </td>
 
@@ -185,7 +185,7 @@ export default function PoorDogs() {
                       </td>
 
                       <td className="text-center py-4 px-4">
-                        <Badge variant="secondary" className="bg-warning/10 text-warning">
+                        <Badge variant="secondary" className="bg-warning text-warning-foreground">
                           {p.prod_roas?.toFixed(2)}
                         </Badge>
                       </td>

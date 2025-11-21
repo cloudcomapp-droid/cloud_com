@@ -17,7 +17,7 @@ export default function Hopeless() {
   const hopelessData = products
     ?.filter(
       (p) =>
-        p.prod_roas < classificationRules.hopelessRoas && 
+        p.prod_roas < classificationRules.poorDogRoas && 
         p.prod_costs >= classificationRules.hopelessCost
     )
     .map((p) => ({ ...p }));
@@ -119,8 +119,8 @@ export default function Hopeless() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">ID</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Product Name</th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">ID</th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Product Name</th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">Impressions</th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">Clicks</th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">CTR</th>
@@ -137,11 +137,11 @@ export default function Hopeless() {
                       key={product.prod_id}
                       className="border-b border-border hover:bg-muted/50 transition-colors"
                     >
-                      <td className="py-4 px-4 font-mono text-sm text-muted-foreground">
+                      <td className="text-center py-4 px-4">
                         {product.prod_id}
                       </td>
 
-                      <td className="py-4 px-4 font-medium">{product.prod_name}</td>
+                      <td className="text-center py-4 px-4">{product.prod_name}</td>
 
                       <td className="text-center py-4 px-4">{product.prod_imprs}</td>
 

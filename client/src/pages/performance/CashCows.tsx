@@ -148,10 +148,10 @@ export default function CashCows() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left px-1 py-3 max-w-[150px] min-w-[100px] font-medium text-muted-foreground">
+                    <th className="text-center px-1 py-3 max-w-[150px] min-w-[100px] font-medium text-muted-foreground">
                       ID
                     </th>
-                    <th className="text-left px-1 py-3 max-w-[150px] min-w-[100px] font-medium text-muted-foreground">
+                    <th className="text-center px-1 py-3 max-w-[150px] min-w-[100px] font-medium text-muted-foreground">
                       Product Name
                     </th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">
@@ -183,10 +183,10 @@ export default function CashCows() {
                       key={product.prod_id}
                       className="border-b border-border hover:bg-muted/50 transition-colors"
                     >
-                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px] break-words whitespace-normal">
+                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px] break-words whitespace-normal text-center">
                         {product.prod_id}
                       </td>
-                      <td className="border-b px-1 py-3 break-words max-w-[150px] min-w-[100px] font-medium whitespace-normal">
+                      <td className="border-b px-1 py-3 break-words max-w-[150px] min-w-[100px] whitespace-normal text-center">
                         {product.prod_name}
                       </td>
                       <td className="text-center py-4 px-4">
@@ -210,7 +210,7 @@ export default function CashCows() {
                       <td className="text-center py-4 px-4">
                         <Badge
                           variant="secondary"
-                          className="bg-success/10 text-success"
+                          className="bg-success text-success-foreground"
                         >
                           {product.prod_roas.toFixed(2)}
                         </Badge>
