@@ -12,13 +12,10 @@ export async function getProductsCampaignLabels(
 ) {
   if (!clientId) clientId = "4693401961";
 
-  // Access token
   const accessToken = await getAccessToken();
 
-  // Build URL
   const url = `https://googleads.googleapis.com/v21/customers/${clientId}/googleAds:searchStream`;
 
-  // Query
   const query = `
     SELECT 
       shopping_product.issues,
@@ -33,7 +30,6 @@ export async function getProductsCampaignLabels(
     WHERE campaign.id = ${campID}
   `;
 
-  // Request config
   const options = {
     method: "POST",
     headers: {
@@ -45,7 +41,6 @@ export async function getProductsCampaignLabels(
     body: JSON.stringify({ query }),
   };
 
-  // Fetch data
   const response = await fetch(url, options);
   if (!response.ok) {
     throw new Error(
@@ -56,11 +51,10 @@ export async function getProductsCampaignLabels(
   const chunks = await response.json();
 
   // Arrays
-  const allItemIds = [];
+  const allItems = [];
   const todayIds = [];
   const todayTitles = [];
 
-  // Process chunks
   for (const chunk of chunks) {
     if (!chunk.results) continue;
 
@@ -79,11 +73,26 @@ export async function getProductsCampaignLabels(
         prod.customAttribute4,
       ];
 
-      allItemIds.push(itemId);
+      // SAVE ALL ITEMS
+      allItems.push({ itemId, title, attrs });
 
-      // Find label
-      let label = attrs[indexToFetch];
+      // CASE: "all" → means: match ALL PRODUCTS
+      if (selCustLbl === "all") {
+        // Build title with attributes
+        const cleanedAttrs = attrs.filter((x) => x && x.trim() !== "");
+        const finalTitle =
+          cleanedAttrs.length > 0
+            ? `${title};${cleanedAttrs.join(";")}`
+            : title;
 
+        todayIds.push(itemId);
+        todayTitles.push(finalTitle);
+
+        continue;
+      }
+
+      // NORMAL CASE → filter by single label
+      const label = attrs[indexToFetch];
       if (label === selCustLbl) {
         todayIds.push(itemId);
         todayTitles.push(title);
@@ -91,17 +100,21 @@ export async function getProductsCampaignLabels(
     }
   }
 
-  // Deduplicate
-  const uniqueAllIds = [...new Set(allItemIds)];
-  const uniqueTodayIds = [...new Set(todayIds)];
+  // Deduplicate allItems by itemId
+  const uniqueAllItems = Array.from(
+    new Map(allItems.map((i) => [i.itemId, i])).values()
+  );
 
+  // Dedupe matched IDs
+  const uniqueTodayIds = [...new Set(todayIds)];
   const uniqueTodayTitles = uniqueTodayIds.map((id) => {
     const idx = todayIds.indexOf(id);
     return todayTitles[idx] || "";
   });
 
   return {
-    allItems: uniqueAllIds,
+    allItems,
+    uniqueAllItems,
     matchedItems: uniqueTodayIds.map((id, i) => ({
       itemId: id,
       title: uniqueTodayTitles[i],

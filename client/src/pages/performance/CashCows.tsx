@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { exportToCSV, ProductData } from "@/utils/csvExport";
 import { useOutletContext } from "react-router-dom";
+import { Product } from "@/interfaces/interfaces";
 
 type OutletCtx = {
   campaigns: any[];
@@ -17,84 +18,20 @@ type OutletCtx = {
   setSelectedCustomLabel: (v: string) => void;
   fetchInitialFilters: (force?: boolean) => void;
   products: any[];
+  classificationRules: any;
 };
 
-interface Product {
-  camp_id: string;
-  camp_name: string;
-  camp_type: string;
-  prod_id: string;
-  prod_name: string;
-  prod_imprs: number;
-  prod_clcks: number;
-  prod_ctr: number;
-  prod_convs: number;
-  prod_value: number;
-  prod_costs: number;
-}
-
 export default function CashCows() {
-  const {
-    campaigns,
-    selectedCampaign,
-    setSelectedCampaign,
-    assetGroups,
-    selectedAssetGroup,
-    setSelectedAssetGroup,
-    selectedCustomLabel,
-    setSelectedCustomLabel,
-    fetchInitialFilters,
-    products,
-  } = useOutletContext<OutletCtx>();
-  const cashCowsData: ProductData[] = [
-    {
-      id: "CC001",
-      produktname: "Premium Smartphone XY",
-      impressionen: "150'000",
-      klicks: "3'500",
-      ctr: "2.33%",
-      conversions: "420",
-      value: "CHF 42'000",
-      costs: "CHF 5'000",
-      roas: "8.4",
-    },
-    {
-      id: "CC002",
-      produktname: "Laptop Pro Series",
-      impressionen: "120'000",
-      klicks: "2'800",
-      ctr: "2.50%",
-      conversions: "380",
-      value: "CHF 38'000",
-      costs: "CHF 4'800",
-      roas: "7.9",
-    },
-    {
-      id: "CC003",
-      produktname: "Designer Headphones",
-      impressionen: "90'000",
-      klicks: "2'200",
-      ctr: "2.44%",
-      conversions: "280",
-      value: "CHF 28'000",
-      costs: "CHF 3'500",
-      roas: "8.0",
-    },
-  ];
+  const { products } = useOutletContext<OutletCtx>();
 
-  const cashCowDataTest = products?.map((product: Product) => {
-    return {
-      id: product.prod_id,
-      produktname: product.prod_name,
-      impressionen: product.prod_imprs.toLocaleString("de-CH"),
-      klicks: product.prod_clcks.toLocaleString("de-CH"),
-      ctr: `${product.prod_ctr.toFixed(2)}%`,
-      conversions: product.prod_convs.toLocaleString("de-CH"),
-      value: `CHF ${product.prod_value.toLocaleString("de-CH")}`,
-      costs: `CHF ${product.prod_costs.toLocaleString("de-CH")}`,
-      roas: (product.prod_value / product.prod_costs).toFixed(1),
-    };
-  });
+  const rules = useOutletContext<OutletCtx>().classificationRules;
+
+  const cashCowsData = products
+    ?.filter(
+      (p) =>
+        p.prod_roas >= rules.cashCowRoas && p.prod_convs >= rules.cashCowConv
+    )
+    .map((p) => ({ ...p }));
 
   const handleExportCSV = () => {
     exportToCSV(cashCowsData, "cash-cows-products");
@@ -109,7 +46,7 @@ export default function CashCows() {
             <Link to="/performance">
               <Button variant="ghost" size="sm">
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Zurück zu Performance-Übersicht
+                Back to Performance Overview
               </Button>
             </Link>
           </div>
@@ -124,11 +61,11 @@ export default function CashCows() {
                   variant="secondary"
                   className="bg-success/10 text-success"
                 >
-                  Beste Performance
+                  Best Performance
                 </Badge>
               </h1>
               <p className="text-muted-foreground">
-                Hochprofitable Produkte mit ausgezeichneter ROAS-Performance.
+                Highly profitable products with outstanding ROAS performance.
               </p>
             </div>
           </div>
@@ -141,32 +78,48 @@ export default function CashCows() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-success">250</div>
-              <div className="text-sm text-muted-foreground">Produkte</div>
+              <div className="text-2xl font-bold text-success">
+                {cashCowsData?.length}
+              </div>
+              <div className="text-sm text-muted-foreground">Products</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-foreground">
-                CHF 280'000
+                {cashCowsData
+                  ?.reduce((acc, p) => acc + (p.prod_value || 0), 0)
+                  .toFixed(2)}
               </div>
-              <div className="text-sm text-muted-foreground">Gesamtumsatz</div>
+              <div className="text-sm text-muted-foreground">Total Revenue</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-foreground">
-                CHF 40'000
+                {cashCowsData
+                  ?.reduce((acc, p) => acc + (p.prod_costs || 0), 0)
+                  .toFixed(2)}
               </div>
-              <div className="text-sm text-muted-foreground">Gesamtkosten</div>
+              <div className="text-sm text-muted-foreground">Total Costs</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-success">7.0</div>
-              <div className="text-sm text-muted-foreground">
-                Durchschnittliche ROAS
+              <div className="text-2xl font-bold text-success">
+                {" "}
+                {(
+                  cashCowsData.reduce(
+                    (acc, p) => acc + (p.prod_value || 0),
+                    0
+                  ) /
+                  (cashCowsData.reduce(
+                    (acc, p) => acc + (p.prod_costs || 0),
+                    0
+                  ) || 1)
+                ).toFixed(1)}{" "}
               </div>
+              <div className="text-sm text-muted-foreground">Average ROAS</div>
             </CardContent>
           </Card>
         </div>
@@ -177,7 +130,7 @@ export default function CashCows() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-success"></div>
-                Cash Cows - Detailansicht
+                Cash Cows – Detailed View
               </CardTitle>
               <Button
                 onClick={handleExportCSV}
@@ -186,7 +139,7 @@ export default function CashCows() {
                 className="gap-2"
               >
                 <Download className="h-4 w-4" />
-                CSV Export
+                Export CSV
               </Button>
             </div>
           </CardHeader>
@@ -195,17 +148,17 @@ export default function CashCows() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                    <th className="text-center px-1 py-3 max-w-[150px] min-w-[100px] font-medium text-muted-foreground">
                       ID
                     </th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">
-                      Produktname
+                    <th className="text-center px-1 py-3 max-w-[150px] min-w-[100px] font-medium text-muted-foreground">
+                      Product Name
                     </th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">
-                      Impressionen
+                      Impressions
                     </th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">
-                      Klicks
+                      Clicks
                     </th>
                     <th className="text-center py-3 px-4 font-medium text-muted-foreground">
                       CTR
@@ -225,35 +178,41 @@ export default function CashCows() {
                   </tr>
                 </thead>
                 <tbody>
-                  {cashCowDataTest?.map((product) => (
+                  {cashCowsData?.map((product) => (
                     <tr
-                      key={product.id}
+                      key={product.prod_id}
                       className="border-b border-border hover:bg-muted/50 transition-colors"
                     >
-                      <td className="py-4 px-4 font-mono text-sm text-muted-foreground">
-                        {product.id}
+                      <td className="border-b px-1 py-3 max-w-[150px] min-w-[100px] break-words whitespace-normal text-center">
+                        {product.prod_id}
                       </td>
-                      <td className="py-4 px-4 font-medium">
-                        {product.produktname}
-                      </td>
-                      <td className="text-center py-4 px-4">
-                        {product.impressionen}
+                      <td className="border-b px-1 py-3 break-words max-w-[150px] min-w-[100px] whitespace-normal text-center">
+                        {product.prod_name}
                       </td>
                       <td className="text-center py-4 px-4">
-                        {product.klicks}
+                        {product.prod_imprs}
                       </td>
-                      <td className="text-center py-4 px-4">{product.ctr}</td>
                       <td className="text-center py-4 px-4">
-                        {product.conversions}
+                        {product.prod_clcks}
                       </td>
-                      <td className="text-center py-4 px-4">{product.value}</td>
-                      <td className="text-center py-4 px-4">{product.costs}</td>
+                      <td className="text-center py-4 px-4">
+                        {product.prod_ctr.toFixed(2)}%
+                      </td>
+                      <td className="text-center py-4 px-4">
+                        {product.prod_convs.toFixed(2)}
+                      </td>
+                      <td className="text-center py-4 px-4">
+                        ${product.prod_value.toFixed(2)}
+                      </td>
+                      <td className="text-center py-4 px-4">
+                        ${product.prod_costs.toFixed(2)}
+                      </td>
                       <td className="text-center py-4 px-4">
                         <Badge
                           variant="secondary"
-                          className="bg-success/10 text-success"
+                          className="bg-success text-success-foreground"
                         >
-                          {product.roas}
+                          {product.prod_roas.toFixed(2)}
                         </Badge>
                       </td>
                     </tr>
@@ -268,15 +227,15 @@ export default function CashCows() {
         <Card className="border-l-4 border-l-success">
           <CardHeader>
             <CardTitle className="text-success">
-              Empfehlungen für Cash Cows
+              Recommendations for Cash Cows
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li>• Budget erhöhen, um noch mehr Traffic zu generieren</li>
-              <li>• Ähnliche Produkte identifizieren und bewerben</li>
-              <li>• Cross-Selling-Strategien implementieren</li>
-              <li>• Diese Erfolgsstrategien auf andere Kategorien anwenden</li>
+              <li>• Increase budget to generate more traffic</li>
+              <li>• Identify and promote similar products</li>
+              <li>• Implement cross-selling strategies</li>
+              <li>• Apply these success strategies to other categories</li>
             </ul>
           </CardContent>
         </Card>

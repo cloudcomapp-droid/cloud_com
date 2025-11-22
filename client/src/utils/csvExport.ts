@@ -1,3 +1,5 @@
+import { Product } from "@/interfaces/interfaces";
+
 export interface ProductData {
   id: string;
   produktname: string;
@@ -20,7 +22,7 @@ export interface SilentProductData {
   ursache: string;
 }
 
-export const exportToCSV = (data: ProductData[], filename: string) => {
+export const exportToCSV = (data: Product[], filename: string) => {
   // Convert data to CSV format
   const headers = Object.keys(data[0]).join(',');
   const csvContent = [
@@ -43,7 +45,7 @@ export const exportToCSV = (data: ProductData[], filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-export const exportSilentToCSV = (data: SilentProductData[], filename: string) => {
+export const exportSilentToCSV = (data: Product[], filename: string) => {
   // Convert data to CSV format
   const headers = Object.keys(data[0]).join(',');
   const csvContent = [

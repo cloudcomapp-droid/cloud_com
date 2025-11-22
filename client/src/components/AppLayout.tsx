@@ -18,6 +18,25 @@ export default function AppLayout() {
   const [commandOpen, setCommandOpen] = useState(false);
   const { isFavorite, addToFavorites, removeFromFavorites, currentPath } =
     useNavigationState();
+  const [classificationRules, setClassificationRules] = useState(() => {
+    const stored = localStorage.getItem("classificationRules");
+    return stored
+      ? JSON.parse(stored)
+      : {
+          cashCowRoas: 3,
+          cashCowConv: 1,
+          poorDogRoas: 1,
+          hopelessCost: 10,
+        };
+  });
+
+  // Mantener sincronizado cada vez que cambien las rules
+  useEffect(() => {
+    localStorage.setItem(
+      "classificationRules",
+      JSON.stringify(classificationRules)
+    );
+  }, [classificationRules]);
 
   const {
     campaigns,
@@ -166,6 +185,8 @@ export default function AppLayout() {
                 setSelectedCustomLabel,
                 fetchInitialFilters,
                 products,
+                classificationRules,
+                setClassificationRules,
               }}
             />
           </main>

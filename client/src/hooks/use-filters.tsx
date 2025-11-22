@@ -1,36 +1,12 @@
-import { mergeProducts } from "@/utils/mergeProducts";
+import { AssetGroup, Campaign, Product } from "@/interfaces/interfaces";
+import { findDuplicatesByItemId, mergeProducts } from "@/utils/mergeProducts";
 import { useState, useEffect, useCallback } from "react";
-
-interface Campaign {
-  id: string;
-  name: string;
-}
-
-interface AssetGroup {
-  id: string;
-  name: string;
-  campaign?: string;
-}
-
-interface Product {
-  camp_id: string;
-  camp_name: string;
-  camp_type: string;
-  prod_id: string;
-  prod_name: string;
-  prod_imprs: number;
-  prod_clcks: number;
-  prod_ctr: number;
-  prod_convs: number;
-  prod_value: number;
-  prod_costs: number;
-}
 
 export function useFilters() {
   const API_URL = "/api";
-  const initialClientId = "4693401961";
-  const initialCampaignId = "22556496600";
-  const initialAssetGroupId = "6576572641";
+  const initialClientId = "4693401961"; //;"8240545219"
+  const initialCampaignId = "22556496600"; //"18887820881"
+  const initialAssetGroupId = "6576572641"; // "6456568220"
   const [clientId, setClientId] = useState(initialClientId);
 
   const [clientName, setClientName] = useState("");
@@ -79,8 +55,6 @@ export function useFilters() {
         const productsList: Product[] = Array.isArray(json?.data)
           ? json.data
           : [];
-        console.log("products:", productsList);
-        setProducts(productsList);
         return productsList;
       } catch (err) {
         console.error("Failed to fetch products:", err);
@@ -138,8 +112,8 @@ export function useFilters() {
       }
 
       // ---- PARSE CUSTOM LABEL ----
-      // ejemplo: geräte***INDEX1
-      const [labelNameRaw, indexRaw] = customLabel.split("***");
+      // ejemplo: geräte--INDEX1
+      const [labelNameRaw, indexRaw] = customLabel.split(" -- ");
 
       if (!labelNameRaw || !indexRaw) {
         console.error("❌ Invalid custom label format");
@@ -170,9 +144,10 @@ export function useFilters() {
         const json = await resp.json();
 
         const data = json?.data?.matchedItems || [];
+        const dataWithDuplicates = json?.data?.allItems || [];
 
         setProductsByCustomLabel(data);
-        return data;
+        return { data, dataWithDuplicates };
       } catch (err) {
         console.error("❌ Failed to fetch custom label products:", err);
       }
@@ -181,10 +156,12 @@ export function useFilters() {
   );
 
   const fetchClientName = useCallback(
-    async (id: string) => {
+    async (id: string, force = false) => {
       try {
         const respClient = await fetch(
-          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(id)}`,
+          `${API_URL}/google-customer-name?clientId=${encodeURIComponent(id)}${
+            force ? "&fetch=1" : ""
+          }`,
           { credentials: "include" }
         );
         const jsonClient = await respClient.json();
@@ -197,10 +174,12 @@ export function useFilters() {
   );
 
   const fetchCampaignsFromClient = useCallback(
-    async (id: string) => {
+    async (id: string, force = false) => {
       try {
         const respCamps = await fetch(
-          `${API_URL}/google-campaigns?clientId=${encodeURIComponent(id)}`,
+          `${API_URL}/google-campaigns?clientId=${encodeURIComponent(id)}${
+            force ? "&fetch=1" : ""
+          }`,
           { credentials: "include" }
         );
         const jsonCamps = await respCamps.json();
@@ -256,13 +235,15 @@ export function useFilters() {
 
   // 🔹 Fetch inicial (campañas, cliente, asset groups, labels, productos)
   const fetchInitialFilters = useCallback(async (force = false) => {
+    const debug = false;
     try {
       // --- 1️⃣ Fetch campaigns ---
-      const campList = await fetchCampaignsFromClient(clientId);
+      const campList = await fetchCampaignsFromClient(clientId, force);
+      if (debug) console.log("Fetched campaigns:", campList);
       setSelectedCampaign(campList?.find((c) => c.id === initialCampaignId));
 
       // --- 2️⃣ Fetch client name ---
-      await fetchClientName(clientId);
+      await fetchClientName(clientId, force);
 
       // --- 3️⃣ Fetch all asset groups ---
       if (campList.length > 0) {
@@ -333,22 +314,22 @@ export function useFilters() {
         allLabels[1]
       );
 
+      if (debug) {
+        const duplicates = findDuplicatesByItemId(
+          productsByLabel.dataWithDuplicates || []
+        );
+        console.log("Found duplicates by itemId:", duplicates);
+      }
       // 6️⃣ Order products
-
-      /*       console.log("Initial fetched products:", {
-        productsCampaing,
-        productsAssetGroup,
-        productsByLabel,
-      }); */
 
       const productsMerged = mergeProducts(
         productsCampaing || [],
         productsAssetGroup || [],
-        productsByLabel || []
+        productsByLabel?.data || []
       );
 
       setProducts(productsMerged);
-      console.log("Merged products:", productsMerged);
+      if (debug) console.log("Merged products:", productsMerged);
     } catch (err) {
       console.error("Failed to fetch filters:", err);
     }

@@ -908,13 +908,14 @@ app.get("/google-campaigns", async (req, res) => {
 
   let method;
   let respData;
+  const clientId = req.query.clientId || "4693401961";
 
   if (!req.session.cache_adsCampaigns || forceFetch) {
     console.log("fetching new data...");
     method = "fetched";
 
     // fetch campaigns from Google Ads
-    const campaigns = await getCampaigns();
+    const campaigns = await getCampaigns(clientId);
 
     // map to simple array with id + name (optional)
     respData = campaigns.map((c) => ({

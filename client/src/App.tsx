@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Dev testing pages
-import AllProducts from "./pages/AllProducts";
+import AllProducts from "./pages/performance/AllProducts";
 
 // Main app pages
 import Dashboard from "./pages/Dashboard";
@@ -39,13 +39,13 @@ const App = () => (
           <Route path="/header-proposals" element={<AppLayoutProposals />} />
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/all-products" element={<AllProducts />} />
             <Route path="/performance" element={<Performance />} />
             <Route path="/performance/cash-cows" element={<CashCows />} />
             <Route path="/performance/poor-dogs" element={<PoorDogs />} />
             <Route path="/performance/hopeless" element={<Hopeless />} />
             <Route path="/performance/numb" element={<Numb />} />
             <Route path="/performance/silent" element={<Silent />} />
+            <Route path="/performance/all-products" element={<AllProducts />} />
             <Route path="/campaigns" element={<Campaigns />} />
             <Route path="/asset-groups" element={<AssetGroups />} />
             <Route path="/products" element={<Products />} />

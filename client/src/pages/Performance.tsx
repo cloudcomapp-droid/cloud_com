@@ -1,8 +1,118 @@
+import { Navigate, useOutletContext } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { BarChart3, TrendingUp, Activity, ArrowDownRight, ArrowUpRight, ShoppingCart, Wallet, Gauge, AlertTriangle, XCircle, Volume2 } from "lucide-react";
+import {
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  XCircle,
+  Volume2,
+  Gauge,
+} from "lucide-react";
+import classifyProducts from "@/utils/clasifyProducts";
+import { Product } from "@/interfaces/interfaces";
+import { useNavigate } from "react-router-dom";
+
+type OutletCtx = {
+  products: Product[];
+  classificationRules: any;
+};
 
 export default function Performance() {
+  const { products, classificationRules } = useOutletContext<OutletCtx>();
+
+  const { silentData, cashCowsData, poorDogsData, hopelessData, numbData } =
+    classifyProducts(products, classificationRules);
+
+  // ------------------------------------------
+  // AGGREGATOR: Sum metrics for each category
+  // ------------------------------------------
+  const getMetrics = (items: Product[]) => {
+    const totals = items.reduce(
+      (acc, item) => {
+        acc.impressions += item.prod_imprs || 0;
+        acc.clicks += item.prod_clcks || 0;
+        acc.conversions += item.prod_convs || 0;
+        acc.value += item.prod_value || 0;
+        acc.costs += item.prod_costs || 0;
+        return acc;
+      },
+      {
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        value: 0,
+        costs: 0,
+      }
+    );
+
+    const ctr =
+      totals.impressions > 0
+        ? ((totals.clicks / totals.impressions) * 100).toFixed(2)
+        : "0.00";
+
+    const roas =
+      totals.costs > 0 ? (totals.value / totals.costs).toFixed(2) : "0.0";
+
+    return {
+      products: items.length,
+      impressions: totals.impressions,
+      clicks: totals.clicks,
+      ctr,
+      conversions: totals.conversions,
+      value: totals.value,
+      costs: totals.costs,
+      roas,
+    };
+  };
+
+  const all = getMetrics(products);
+  const cashCows = getMetrics(cashCowsData);
+  const poorDogs = getMetrics(poorDogsData);
+  const hopeless = getMetrics(hopelessData);
+  const numb = getMetrics(numbData);
+  const silent = getMetrics(silentData);
+
+  const navigate = useNavigate();
+
+  const row = (label, icon, color, data, href, bg) => (
+    <tr
+      className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer"
+      onClick={() => navigate(href)}
+    >
+      <td className="py-4 px-4">
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className={`font-medium ${color} hover:underline`}>
+            {label}
+          </span>
+        </div>
+      </td>
+
+      <td className="text-center py-4 px-4 text-foreground">{data.products}</td>
+      <td className="text-center py-4 px-4 text-foreground">
+        {data.impressions}
+      </td>
+      <td className="text-center py-4 px-4 text-foreground">{data.clicks}</td>
+      <td className="text-center py-4 px-4 text-foreground">{data.ctr}%</td>
+      <td className="text-center py-4 px-4 text-foreground">
+        {data.conversions.toFixed(2)}
+      </td>
+      <td className="text-center py-4 px-4 text-foreground">
+        $ {data.value.toFixed(2)}
+      </td>
+      <td className="text-center py-4 px-4 text-foreground">
+        $ {data.costs.toFixed(2)}
+      </td>
+      <td className="text-center py-4 px-4">
+        <span
+          className={`inline-flex items-center px-2 py-1 rounded-full text-sm font-medium ${bg}`}
+        >
+          {Number(data?.roas).toFixed(2)}
+        </span>
+      </td>
+    </tr>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -13,164 +123,122 @@ export default function Performance() {
               <Gauge className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Performance Overview</h1>
-              <p className="text-muted-foreground">Detailed analysis of key performance indicators and metrics.</p>
+              <h1 className="text-2xl font-bold text-foreground">
+                Performance Overview
+              </h1>
+              <p className="text-muted-foreground">
+                Detailed analysis of key performance indicators and metrics.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Performance Categories Table */}
+      {/* Table */}
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-primary" />
-              Performance-Übersicht
+              Performance Overview
             </CardTitle>
           </CardHeader>
+
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Kategorie</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Anzahl Produkte</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Impressionen</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Klicks</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">CTR</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Conversions</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Value</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Costs</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">ROAS</th>
+                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                      Category
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      Products
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      Impressions
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      Clicks
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      CTR
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      Conversions
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      Value
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      Costs
+                    </th>
+                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">
+                      ROAS
+                    </th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-primary"></div>
-                        <span className="font-medium text-foreground">Alle</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-4 px-4 text-foreground">1.500</td>
-                    <td className="text-center py-4 px-4 text-foreground">2.350.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">45.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">1.91%</td>
-                    <td className="text-center py-4 px-4 text-foreground">4.200</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 420.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 105.000</td>
-                    <td className="text-center py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-primary text-primary-foreground">
-                        4.0
-                      </span>
-                    </td>
-                  </tr>
-                  
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => window.location.href = '/performance/cash-cows'}>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-success" />
-                        <span className="font-medium text-success hover:underline">Cash Cows</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-4 px-4 text-foreground">250</td>
-                    <td className="text-center py-4 px-4 text-foreground">900.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">22.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">2.44%</td>
-                    <td className="text-center py-4 px-4 text-foreground">2.800</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 280.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 40.000</td>
-                    <td className="text-center py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-success text-success-foreground">
-                        7.0
-                      </span>
-                    </td>
-                  </tr>
+                  {/* ALL */}
+                  {row(
+                    "All",
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>,
+                    "text-foreground",
+                    all,
+                    "/performance/all-products",
+                    "bg-primary text-success-foreground"
+                  )}
 
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => window.location.href = '/performance/poor-dogs'}>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-warning" />
-                        <span className="font-medium text-warning hover:underline">Poor Dogs</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-4 px-4 text-foreground">300</td>
-                    <td className="text-center py-4 px-4 text-foreground">600.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">9.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">1.50%</td>
-                    <td className="text-center py-4 px-4 text-foreground">700</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 35.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 25.000</td>
-                    <td className="text-center py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-warning text-warning-foreground">
-                        1.4
-                      </span>
-                    </td>
-                  </tr>
+                  {/* CASH COWS */}
+                  {row(
+                    "Cash Cows",
+                    <TrendingUp className="w-4 h-4 text-success" />,
+                    "text-success",
+                    cashCows,
+                    "/performance/cash-cows",
+                    "bg-success text-success-foreground"
+                  )}
 
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => window.location.href = '/performance/hopeless'}>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <XCircle className="w-4 h-4 text-destructive" />
-                        <span className="font-medium text-destructive hover:underline">Hopeless</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-4 px-4 text-foreground">150</td>
-                    <td className="text-center py-4 px-4 text-foreground">300.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">5.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">1.67%</td>
-                    <td className="text-center py-4 px-4 text-foreground">300</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 9.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 15.000</td>
-                    <td className="text-center py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-destructive text-destructive-foreground">
-                        0.6
-                      </span>
-                    </td>
-                  </tr>
+                  {/* POOR DOGS */}
+                  {row(
+                    "Poor Dogs",
+                    <AlertTriangle className="w-4 h-4 text-warning" />,
+                    "text-warning",
+                    poorDogs,
+                    "/performance/poor-dogs",
+                    "bg-warning text-warning-foreground"
+                  )}
 
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => window.location.href = '/performance/numb'}>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium text-muted-foreground hover:underline">Numb </span>
-                      </div>
-                    </td>
-                    <td className="text-center py-4 px-4 text-foreground">500</td>
-                    <td className="text-center py-4 px-4 text-foreground">400.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">6.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">1.50%</td>
-                    <td className="text-center py-4 px-4 text-foreground">300</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 12.000</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 8.000</td>
-                    <td className="text-center py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-warning text-warning-foreground">
-                        1.5
-                      </span>
-                    </td>
-                  </tr>
+                  {/* HOPELESS */}
+                  {row(
+                    "Hopeless",
+                    <XCircle className="w-4 h-4 text-destructive" />,
+                    "text-destructive",
+                    hopeless,
+                    "/performance/hopeless",
+                    "bg-destructive text-destructive-foreground"
+                  )}
 
-                  <tr className="hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => window.location.href = '/performance/silent'}>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <Volume2 className="w-4 h-4 text-muted-foreground" />
-                        <span className="font-medium text-muted-foreground hover:underline">Silent</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-4 px-4 text-foreground">5</td>
-                    <td className="text-center py-4 px-4 text-foreground">0</td>
-                    <td className="text-center py-4 px-4 text-foreground">0</td>
-                    <td className="text-center py-4 px-4 text-foreground">0.00%</td>
-                    <td className="text-center py-4 px-4 text-foreground">0</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 0</td>
-                    <td className="text-center py-4 px-4 text-foreground">CHF 0</td>
-                    <td className="text-center py-4 px-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-destructive text-destructive-foreground">
-                        0.0
-                      </span>
-                    </td>
-                  </tr>
+                  {/* NUMB */}
+                  {row(
+                    "Numb",
+                    <BarChart3 className="w-4 h-4 text-muted-foreground" />,
+                    "text-muted-foreground",
+                    numb,
+                    "/performance/numb",
+                    "bg-gray-500 text-warning-foreground"
+                  )}
+
+                  {/* SILENT */}
+                  {row(
+                    "Silent",
+                    <Volume2 className="w-4 h-4 text-muted-foreground" />,
+                    "text-muted-foreground",
+                    silent,
+                    "/performance/silent",
+                    "bg-gray-500 text-destructive-foreground"
+                  )}
                 </tbody>
               </table>
             </div>
@@ -183,7 +251,7 @@ export default function Performance() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <Gauge className="h-4 w-4" />
-            <span>Performance-Daten sind Beispielwerte</span>
+            <span>Performance data displayed dynamically</span>
           </div>
         </div>
       </div>

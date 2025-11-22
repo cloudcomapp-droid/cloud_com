@@ -1,156 +1,200 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeftIcon, Volume2, Download } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { exportSilentToCSV, SilentProductData } from "@/utils/csvExport";
+import { exportSilentToCSV } from "@/utils/csvExport";
+import { Product } from "@/interfaces/interfaces";
+
+type OutletCtx = {
+  products: Product[];
+  classificationRules: any;
+};
 
 export default function Silent() {
-  const silentData: SilentProductData[] = [
-    {
-      id: "SL001",
-      produktname: "Vintage Calculator V1",
-      status: "Inaktiv",
-      impressionen: "0",
-      klicks: "0",
-      conversions: "0",
-      ursache: "Kampagne pausiert"
-    },
-    {
-      id: "SL002",
-      produktname: "Old Smartphone Model",
-      status: "Inaktiv",
-      impressionen: "0",
-      klicks: "0",
-      conversions: "0",
-      ursache: "Kein Budget"
-    },
-    {
-      id: "SL003",
-      produktname: "Discontinued Headset",
-      status: "Inaktiv",
-      impressionen: "0",
-      klicks: "0",
-      conversions: "0",
-      ursache: "Produkt eingestellt"
-    }
-  ];
+  const { products, classificationRules } = useOutletContext<OutletCtx>();
+
+  // RULE: Silent = no impressions, no clicks, no convs
+  const silentData = products
+    ?.filter(
+      (p) => p.prod_roas === 0 && p.prod_costs === 0 && p.prod_imprs === 0
+    )
+    .map((p) => ({ ...p }));
 
   const handleExportCSV = () => {
-    exportSilentToCSV(silentData, 'silent-products');
+    exportSilentToCSV(silentData, "silent-products");
   };
+
+  const totalImpressions = silentData?.reduce(
+    (acc, p) => acc + (p.prod_imprs || 0),
+    0
+  );
+  const totalClicks = silentData?.reduce(
+    (acc, p) => acc + (p.prod_clcks || 0),
+    0
+  );
+  const totalConversions = silentData?.reduce(
+    (acc, p) => acc + (p.prod_convs || 0),
+    0
+  );
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* HEADER */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4 mb-4">
             <Link to="/performance">
               <Button variant="ghost" size="sm">
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Zurück zu Performance-Übersicht
+                Back to Performance Overview
               </Button>
             </Link>
           </div>
+
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-muted-foreground rounded-lg">
-              <Volume2 className="h-6 w-6 text-muted" />
+            <div className="p-2 bg-muted rounded-lg">
+              <Volume2 className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <h1 className="text-2xl font-bold flex items-center gap-2">
                 Silent
-                <Badge variant="secondary" className="bg-muted/10 text-muted-foreground">
-                  Keine Aktivität
+                <Badge
+                  variant="secondary"
+                  className="bg-muted/10 text-muted-foreground"
+                >
+                  No Activity
                 </Badge>
               </h1>
-              <p className="text-muted-foreground">Produkte ohne messbare Performance - keine Impressionen, Klicks oder Conversions.</p>
+              <p className="text-muted-foreground">
+                Products generating no measurable activity — no impressions,
+                clicks, or conversions.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Category Details */}
+      {/* MAIN CONTENT */}
       <div className="container mx-auto px-4 py-8 space-y-6">
-        {/* Summary Stats */}
+        {/* SUMMARY */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-muted-foreground">5</div>
-              <div className="text-sm text-muted-foreground">Produkte</div>
+              <div className="text-2xl font-bold">{silentData?.length}</div>
+              <div className="text-sm text-muted-foreground">Products</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-muted-foreground">0</div>
-              <div className="text-sm text-muted-foreground">Impressionen</div>
+              <div className="text-2xl font-bold">{totalImpressions}</div>
+              <div className="text-sm text-muted-foreground">Impressions</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-muted-foreground">0</div>
-              <div className="text-sm text-muted-foreground">Klicks</div>
+              <div className="text-2xl font-bold">{totalClicks}</div>
+              <div className="text-sm text-muted-foreground">Clicks</div>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-muted-foreground">0</div>
+              <div className="text-2xl font-bold">{totalConversions}</div>
               <div className="text-sm text-muted-foreground">Conversions</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* No Activity Alert */}
+        {/* ALERT */}
         <Card className="bg-muted/5 border-muted">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-muted-foreground mb-2">🔇 Keine Aktivität</div>
-              <div className="text-muted-foreground">Diese Produkte haben keine messbaren Daten generiert</div>
-              <div className="text-sm text-muted-foreground mt-2">Überprüfung der Kampagnen-Setup erforderlich</div>
+          <CardContent className="p-6 text-center">
+            <div className="text-3xl font-bold text-muted-foreground mb-2">
+              🔇 No Activity
             </div>
+            <p className="text-muted-foreground">
+              These products have generated zero measurable data.
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Review your campaign setup and product availability.
+            </p>
           </CardContent>
         </Card>
 
-        {/* Detailed Performance Table */}
+        {/* TABLE */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-muted-foreground"></div>
-                Silent - Detailansicht
+                <div className="w-3 h-3 rounded-full bg-muted-foreground" />
+                Silent – Detailed View
               </CardTitle>
-              <Button onClick={handleExportCSV} variant="outline" size="sm" className="gap-2">
+
+              <Button
+                onClick={handleExportCSV}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
                 <Download className="h-4 w-4" />
-                CSV Export
+                Export CSV
               </Button>
             </div>
           </CardHeader>
+
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">ID</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">Produktname</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Status</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Impressionen</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Klicks</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Conversions</th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground">Mögliche Ursache</th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      ID
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Product Name
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Impressions
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Clicks
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Conversions
+                    </th>
+                    <th className="px-4 py-3 text-center font-medium text-muted-foreground">
+                      Possible Cause
+                    </th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {silentData.map((product) => (
-                    <tr key={product.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                      <td className="py-4 px-4 font-mono text-sm text-muted-foreground">{product.id}</td>
-                      <td className="py-4 px-4 font-medium">{product.produktname}</td>
-                      <td className="text-center py-4 px-4">
-                        <Badge variant="outline" className="text-muted-foreground">{product.status}</Badge>
+                  {silentData?.map((p) => (
+                    <tr
+                      key={p.prod_id}
+                      className="border-b border-border hover:bg-muted/50"
+                    >
+                      <td className="px-4 py-4 text-center">{p.prod_id}</td>
+
+                      <td className="px-4 py-4 text-center">{p.prod_name}</td>
+                      <td className="px-4 py-4 text-center">{p.prod_imprs}</td>
+
+                      <td className="px-4 py-4 text-center">{p.prod_clcks}</td>
+
+                      <td className="px-4 py-4 text-center ">{p.prod_convs}</td>
+
+                      <td className="px-4 py-4 text-center">
+                        {/*                         {
+                          p.prod_campaign_status === "paused"
+                            ? "Campaign paused"
+                            : p.prod_budget === 0
+                            ? "No budget"
+                            : "No activity detected"
+                        } */}
+                        No activity detected
                       </td>
-                      <td className="text-center py-4 px-4 text-muted-foreground">{product.impressionen}</td>
-                      <td className="text-center py-4 px-4 text-muted-foreground">{product.klicks}</td>
-                      <td className="text-center py-4 px-4 text-muted-foreground">{product.conversions}</td>
-                      <td className="text-center py-4 px-4 text-xs text-muted-foreground">{product.ursache}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -159,19 +203,21 @@ export default function Silent() {
           </CardContent>
         </Card>
 
-        {/* Action Items */}
+        {/* ACTIONS */}
         <Card className="border-l-4 border-l-muted-foreground">
           <CardHeader>
-            <CardTitle className="text-muted-foreground">Maßnahmen für Silent-Produkte</CardTitle>
+            <CardTitle className="text-muted-foreground">
+              Recommended Actions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">
-              <li>• 🔍 Kampagnen-Status überprüfen (pausiert, deaktiviert?)</li>
-              <li>• 💰 Budget-Allokation kontrollieren</li>
-              <li>• 🎯 Targeting-Einstellungen validieren</li>
-              <li>• 📦 Produktverfügbarkeit prüfen</li>
-              <li>• 🔄 Kampagnen reaktivieren oder archivieren</li>
-              <li>• 📊 Bei Bedarf komplett neue Kampagnen erstellen</li>
+              <li>• Check campaign status (paused or disabled)</li>
+              <li>• Validate budget allocation</li>
+              <li>• Review targeting settings</li>
+              <li>• Ensure product availability</li>
+              <li>• Reactivate or archive silent campaigns</li>
+              <li>• Create new campaigns if necessary</li>
             </ul>
           </CardContent>
         </Card>
